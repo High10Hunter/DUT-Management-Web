@@ -17,7 +17,18 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'avatar',
+        'username',
+        'password',
+        'gender',
+        'birthday',
+        'email',
+        'phone_number',
+        'role',
+        'status',
+        'faculty_id',
+        'class_id',
     ];
 
     /**
@@ -29,12 +40,43 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function getGenderNameAttribute(): string
+    {
+        return ($this->gender === 1) ? 'Nam' : 'Nữ';
+    }
+
+    public function getStatusNameAttribute(): string
+    {
+        return ($this->status === 1) ? 'Làm việc' : 'Đã nghỉ';
+    }
+
+    public function getAgeAttribute(): int
+    {
+        return date_diff(date_create($this->birthday), date_create())->y;
+    }
+
+    public function getRoleNameAttribute(): string
+    {
+        $roleName = getRoleByValue($this->role);
+        if ($roleName === 'admin')
+            $roleName = 'Quản trị viên';
+        else if ($roleName === 'eao_staff')
+            $roleName = 'Giáo vụ';
+        else if ($roleName === 'lecturer')
+            $roleName = 'Giảng viên';
+        else
+            $roleName = 'Sinh viên';
+
+        return $roleName;
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(_Class::class);
+    }
 }
