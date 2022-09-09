@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\_Class;
+use App\Models\Faculty;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -18,6 +20,8 @@ class UserSeeder extends Seeder
     {
         $arr = [];
         $faker = \Faker\Factory::create('vi_VN');
+        $faculties = Faculty::query()->pluck('id')->toArray();
+        $classes = _Class::query()->pluck('id')->toArray();
 
         for ($i = 1; $i <= 100; $i++) {
             $arr[] = [
@@ -31,6 +35,8 @@ class UserSeeder extends Seeder
                 'phone_number' => $faker->boolean ? $faker->phoneNumber : null,
                 'role' => rand(0, 3),
                 'status' => $faker->boolean,
+                'faculty_id' => $faker->boolean ? null : ($faculties[array_rand($faculties)]),
+                'class_id' => $faker->boolean ? null : $classes[array_rand($classes)],
             ];
             if ($i % 10 === 0) {
                 User::insert($arr);
