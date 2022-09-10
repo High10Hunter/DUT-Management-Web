@@ -1,11 +1,4 @@
 @extends('admin_layout.master')
-@push('css')
-    <!--Datatable-->
-    <link href="{{ asset('css/dataTables.bootstrap4.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('css/responsive.bootstrap4.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('css/buttons.bootstrap4.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('css/select.bootstrap4.css') }}" rel="stylesheet" type="text/css" />
-@endpush
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -13,63 +6,80 @@
                 <h4>Quản lý người dùng</h4>
             </div>
 
-            {{-- success notification when adding new staff --}}
+            {{-- success notification when adding or updating new staff --}}
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
+                    {{ session()->forget('success') }}
                 </div>
             @endif
 
             <div class="card">
                 <div class="card-header">
-                    <a href="" class="btn btn-primary">
-                        Thêm mới
-                    </a>
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#import-csv-modal">
-                        Tải lên file CSV
-                    </button>
-                    <form id="form-filter" method="GET" class="form-inline float-right">
-                        <div class="col-lg-6">
+                    <form id="form-filter" method="GET" class="form-inline">
+                        <div class="form-group">
                             <label for="role">Vai trò</label>
-                            <select class="custom-select mb-3 select-filter" id="role" name="role">
-                                <option value="" selected>Tất cả</option>
-                                @foreach ($roles as $role => $value)
-                                    <option value="{{ $value }}" @if ((string) $value == $selectedRole) selected @endif>
-                                        {{ $role }}</option>
-                                @endforeach
-                            </select>
+                            <div class="col-6">
+                                <select class="custom-select select-filter" id="role" name="role">
+                                    <option value="" selected>Tất cả</option>
+                                    @foreach ($roles as $role => $value)
+                                        <option value="{{ $value }}"
+                                            @if ((string) $value == $selectedRole) selected @endif>
+                                            {{ $role }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="col-lg-6">
+                        <div class="form-group">
                             <label for="status">Tình trạng</label>
-                            <select class="custom-select mb-3 select-filter" name="status">
-                                <option value="" selected>Tất cả</option>
-                                @foreach ($status as $each => $value)
-                                    <option value="{{ $value }}" @if ((string) $value == $selectedStatus) selected @endif>
-                                        {{ $each }}</option>
-                                @endforeach
-                            </select>
+                            <div class="col-6">
+                                <select class="custom-select select-filter" name="status">
+                                    <option value="" selected>Tất cả</option>
+                                    @foreach ($status as $each => $value)
+                                        <option value="{{ $value }}"
+                                            @if ((string) $value == $selectedStatus) selected @endif>
+                                            {{ $each }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group form-group w-50">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm tên người dùng..."
+                                aria-label="Recipient's username" name="q" value="{{ $search }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="submit">Tìm kiếm</button>
+                            </div>
                         </div>
                     </form>
                 </div>
 
                 <div class="card-body container-fluid">
-                    <table id="state-saving-datatable" class="table activate-select dt-responsive nowrap w-100">
-                        <thead>
+                    <div class="form-group">
+                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                            Thêm mới
+                        </a>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#import-csv-modal">
+                            Tải lên file CSV
+                        </button>
+                    </div>
+                    <table class="table mb-0 table-hover table-responsive">
+                        <thead class="thead-dark">
                             <tr>
-                                <th>#</th>
-                                <th>Avatar</th>
-                                <th>Tên</th>
-                                <th>Giới tính</th>
-                                <th>Tuổi</th>
-                                <th>Email</th>
-                                <th>Số điện thoại</th>
-                                <th>Tình trạng</th>
-                                <th>Vai trò</th>
-                                <th>Khoa</th>
-                                <th>Lớp</th>
-                                <th>Chỉnh sửa</th>
-                                <th>Xoá</th>
+                                <th scope="col">#</th>
+                                <th scope="col">Avatar</th>
+                                <th scope="col">Tên</th>
+                                <th scope="col">Giới tính</th>
+                                <th scope="col">Tuổi</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Số điện thoại</th>
+                                <th scope="col">Khoa</th>
+                                <th scope="col">Lớp</th>
+                                <th scope="col">Vai trò</th>
+                                <th scope="col">Tình trạng</th>
+                                <th scope="col">Chỉnh sửa</th>
+                                <th scope="col">Xoá</th>
                             </tr>
                         </thead>
 
@@ -101,8 +111,6 @@
                                             <i class="dripicons-wrong"></i>
                                         @endif
                                     </td>
-                                    <td>{{ $each->status_name }}</td>
-                                    <td>{{ $each->role_name }}</td>
                                     <td>
                                         @if (optional($each->faculty)->name)
                                             {{ optional($each->faculty)->name }}
@@ -117,15 +125,18 @@
                                             <i class="dripicons-wrong"></i>
                                         @endif
                                     </td>
+                                    <td>{{ $each->role_name }}</td>
+                                    <td>{{ $each->status_name }}</td>
                                     <td>
-                                        <a href="">
+                                        <a href="{{ route('admin.users.edit', ['user' => $each->id]) }}">
                                             <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
                                             </button>
                                         </a>
                                     </td>
                                     <td>
                                         <button type="button" id="delete-btn" class="btn btn-danger" data-toggle="modal"
-                                            data-target="#warning-confirm-delete-modal" data-href="">
+                                            data-target="#warning-confirm-delete-modal"
+                                            data-href="{{ route('admin.users.destroy', ['user' => $each->id]) }}">
                                             <i class="dripicons-trash"></i>
                                         </button>
                                     </td>
@@ -186,27 +197,79 @@
     </div><!-- /.modal -->
 @endsection
 @push('js')
-    <!--Datatable-->
-    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/dataTables.bootstrap4.js') }}"></script>
-    <script src="{{ asset('js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('js/dataTables.select.min.js') }}"></script>
-
-    <!-- Datatable Init js -->
-    <script src="{{ asset('js/demo.datatable-init.js') }}"></script>
     <script>
+        //prevent csrf-token miss-match
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         $(document).ready(function() {
+            //filter user
             $(".select-filter").change(function(e) {
                 $("#form-filter").submit();
             });
 
-        });
-        $("#state-saving-datatable").DataTable({
-            retrieve: true,
-            info: false,
-            paging: false,
+            //confirm delete
+            $(document).on('click', '#delete-btn', function(event) {
+                // event.preventDefault();
+                let href = $(this).data('href');
+                let currentDeleteBtn = $(this);
+
+                $("#confirm-delete").click(function() {
+                    $.ajax({
+                        type: "POST",
+                        url: href,
+                        success: function(response) {
+                            $("#warning-confirm-delete-modal").modal('hide');
+                            currentDeleteBtn.parents("tr").prev().remove();
+                            currentDeleteBtn.parents("tr").remove();
+                            $.toast({
+                                heading: 'Xoá thành công người dùng',
+                                showHideTransition: 'slide',
+                                icon: 'success',
+                                stack: false,
+                            });
+                        }
+                    });
+
+                });
+            });
+            //csv import
+            $("#btn-import-csv").click(function() {
+                let formData = new FormData();
+                formData.append("file", $("#csv")[0].files[0]);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('admin.users.import_csv') }}',
+                    cache: false,
+                    async: false,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    success: function(response) {
+                        $.toast({
+                            heading: 'Thành công',
+                            text: 'File đã được tải lên',
+                            showHideTransition: 'slide',
+                            position: 'bottom-right',
+                            icon: 'success'
+                        });
+                        $("#import-csv-modal").modal('hide');
+                    },
+                    error: function(response) {
+                        $.toast({
+                            heading: 'Thất bại',
+                            text: 'Không thể tải file lên',
+                            showHideTransition: 'fade',
+                            icon: 'error'
+                        })
+                    }
+                });
+            });
         });
     </script>
 @endpush

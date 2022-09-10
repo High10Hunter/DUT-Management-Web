@@ -5,7 +5,7 @@
                 <ul class="metismenu side-nav mm-show">
 
                     <li class="side-nav-item">
-                        <a href="" class="side-nav-link">
+                        <a href="{{ route('admin.users.index') }}" class="side-nav-link">
                             <i class="mdi mdi-book-search"></i>
                             <span> Quản lý người dùng </span>
                         </a>
