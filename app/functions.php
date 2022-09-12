@@ -10,6 +10,20 @@ if (!function_exists('getRoleByKey')) {
     }
 }
 
+if (!function_exists('isAdmin')) {
+    function isAdmin(): bool
+    {
+        return (auth()->user()->role === UserRoleEnum::ADMIN);
+    }
+}
+
+if (!function_exists('isEAOStaff')) {
+    function isEAOStaff(): bool
+    {
+        return (auth()->user()->role === UserRoleEnum::EAO_STAFF);
+    }
+}
+
 if (!function_exists('moveAvatarToUserIDFolderWhenCreate')) {
     function moveAvatarToUserIDFolderWhenCreate($userId, $storagePathPrefix, $tempPath, $newPathPrefixToStore): string
     {
