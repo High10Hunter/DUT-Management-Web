@@ -54,7 +54,8 @@
                             <div class="card">
                                 <div class="card-body" style="background-color:rgb(237, 237, 9)">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-black-50">
+                                        <a href="{{ route('admin.courses.index') }}"
+                                            class="stretched-link text-black-50">
                                             <i class="uil-invoice"></i>
                                             Quản lý khoá
                                         </a>

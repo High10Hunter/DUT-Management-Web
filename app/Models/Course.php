@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+        'begin_academic_year',
+        'end_academic_year',
+    ];
+    protected $dates = ['begin_academic_year', 'end_academic_year'];
+
+    public $timestamps = false;
 }

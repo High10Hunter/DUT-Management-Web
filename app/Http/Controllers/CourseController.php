@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Course\StoreCourseRequest;
 use App\Models\Course;
-use App\Http\Requests\StoreCourseRequest;
-use App\Http\Requests\UpdateCourseRequest;
+use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public object $model;
+    public string $table;
+
+    public function __construct()
+    {
+        $this->model = Course::query();
+        $this->table = (new Course())->getTable();
+    }
+
     public function index()
     {
-        //
+        $courses = Course::query()->paginate(10);
+        return view(
+            "admin.$this->table.index",
+            [
+                'courses' => $courses,
+            ]
+        );
     }
 
     /**
@@ -25,7 +35,7 @@ class CourseController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.courses.create');
     }
 
     /**
@@ -36,7 +46,10 @@ class CourseController extends Controller
      */
     public function store(StoreCourseRequest $request)
     {
-        //
+        $this->model->create($request->validated());
+
+        session()->put('success', 'Thêm thành công khoá mời');
+        return redirect()->route("admin.$this->table.index");
     }
 
     /**
