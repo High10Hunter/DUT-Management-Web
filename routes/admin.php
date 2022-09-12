@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\MajorController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,4 +30,24 @@ Route::group([
     Route::get('/', [CourseController::class, 'index'])->name('index');
     Route::get('/create', [CourseController::class, 'create'])->name('create');
     Route::post('/create', [CourseController::class, 'store'])->name('store');
+    Route::get('/edit/{course}', [CourseController::class, 'edit'])->name('edit');
+    Route::put('/update/{course}', [CourseController::class, 'update'])->name('update');
+});
+
+Route::group([
+    'prefix' => 'subjects',
+    'as' => 'subjects.',
+], static function () {
+    Route::get('/', [SubjectController::class, 'index'])->name('index');
+});
+
+
+Route::group([
+    'prefix' => 'majors',
+    'as' => 'majors.',
+], static function () {
+    Route::get('/', [MajorController::class, 'index'])->name('index');
+    Route::post('/import_csv', [MajorController::class, 'importCSV'])->name('import_csv');
+    Route::get('/edit/{major}', [MajorController::class, 'edit'])->name('edit');
+    Route::put('/edit/{major}', [MajorController::class, 'update'])->name('update');
 });

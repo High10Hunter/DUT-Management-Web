@@ -68,9 +68,9 @@
                             <div class="card">
                                 <div class="card-body" style="background-color:rgb(82, 181, 84)">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-white">
+                                        <a href="{{ route('admin.subjects.index') }}" class="stretched-link text-white">
                                             <i class="mdi mdi-folder-text"></i>
-                                            Quản lý khoa - Chuyên ngành
+                                            Quản lý môn - Chuyên ngành
                                         </a>
                                     </h3>
                                 </div> <!-- end card-body -->

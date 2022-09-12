@@ -17,13 +17,20 @@ class CourseController extends Controller
         $this->table = (new Course())->getTable();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::query()->paginate(10);
+        $search = $request->get('q');
+
+        $query = $this->model->where('name', 'like', '%' . $search . '%');
+
+        $data = $query->paginate(10)
+            ->appends($request->all());
+
         return view(
             "admin.$this->table.index",
             [
-                'courses' => $courses,
+                'data' => $data,
+                'search' => $search,
             ]
         );
     }
@@ -35,7 +42,7 @@ class CourseController extends Controller
      */
     public function create()
     {
-        return view('admin.courses.create');
+        return view("admin.$this->table.create");
     }
 
     /**
@@ -71,29 +78,19 @@ class CourseController extends Controller
      */
     public function edit(Course $course)
     {
-        //
+        return view(
+            "admin.$this->table.edit",
+            [
+                'course' => $course,
+            ]
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateCourseRequest  $request
-     * @param  \App\Models\Course  $course
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateCourseRequest $request, Course $course)
+    public function update(StoreCourseRequest $request, $courseId)
     {
-        //
-    }
+        $this->model->where('id', $courseId)->update($request->validated());
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Course  $course
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Course $course)
-    {
-        //
+        session()->put('success', 'Cập nhật người dùng thành công');
+        return redirect()->route("admin.$this->table.index");
     }
 }

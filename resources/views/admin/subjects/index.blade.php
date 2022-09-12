@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title">Quản lý khoá</h4>
+                <h4 class="page-title">Quản lý môn</h4>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
                                 <div class="form-group mb-2">
                                     <div class="input-group form-group">
                                         <input type="text" class="form-control" placeholder="Tìm khoá..."
-                                            aria-label="Recipient's username" name="q" value="{{ $search }}">
+                                            aria-label="Recipient's username" name="q">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" type="submit">Tìm kiếm</button>
                                         </div>
@@ -39,6 +39,10 @@
                                 <a href="{{ route('admin.courses.create') }}" class="btn btn-primary md-2 mr-2">
                                     <i class="mdi mdi-plus-circle mr-2"></i> Thêm mới
                                 </a>
+                                <a href="{{ route('admin.majors.index') }}" class="btn btn-secondary md-2 mr-2">
+                                    Quản lý chuyên ngành
+                                    <i class="dripicons-arrow-right"></i>
+                                </a>
                             </div>
                         </div><!-- end col-->
                     </div>
@@ -48,39 +52,14 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Tên khoá</th>
-                                    <th>Năm bắt đầu</th>
-                                    <th>Năm kết thúc</th>
+                                    <th>Tên</th>
+                                    <th>Số tín chỉ</th>
+                                    <th>Ngành</th>
                                     <th>Chỉnh sửa</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($data as $each)
-                                    <tr>
-                                        <td>{{ $each->id }}</td>
-                                        <td>{{ $each->name }}</td>
-                                        <td>
-                                            @if ($each->begin_academic_year)
-                                                {{ $each->begin_academic_year->format('Y') }}
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($each->end_academic_year)
-                                                {{ $each->end_academic_year->format('Y') }}
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.courses.edit', ['course' => $each->id]) }}">
-                                                <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
-                                                </button>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
+
                             </tbody>
                         </table>
                     </div>

@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Major extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'faculty_id',
+    ];
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    public $timestamps = false;
 }

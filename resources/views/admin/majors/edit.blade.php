@@ -4,35 +4,40 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="form-title">Thêm khoá mới</h4>
+                    <h4 class="form-title">Chỉnh sửa thông tin khoá</h4>
                     <p class="text-muted font-14">
-                        Điền các thông tin sau
+                        Sửa đổi/cập nhật các thông tin sau
                     </p>
-                    <form action="{{ route('admin.courses.store') }}" method="POST">
+
+                    <form action="{{ route('admin.majors.update', ['major' => $major->id]) }}" method="POST">
                         @csrf
+                        @method('PUT')
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="name">Tên khoá(*)</label>
+                                    <label for="name">Tên ngành(*)</label>
                                     <span id="name-error" class="display_error" style="color: red"></span>
-                                    <input type="text" id="name-input" name="name" class="form-control">
+                                    <input type="text" id="name-input" name="name" class="form-control"
+                                        value="{{ $major->name }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="begin_academic_year_input">Năm bắt đầu</label>
-                                    <input class="form-control" id="begin_academic_year_input" type="date"
-                                        name="begin_academic_year">
+                                    <label for="faculty-select">Khoa</label>
+                                    <select id="faculty-select" name="faculty_id" class="custom-select mb-3">
+                                        @foreach ($faculties as $faculty)
+                                            <option value="{{ $faculty->id }}"
+                                                @if ($major->faculty_id == $faculty->id) selected @endif>
+                                                {{ $faculty->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="begin_academic_year_input">Năm kết thúc</label>
-                                    <input class="form-control" id="end_academic_year_input" type="date"
-                                        name="end_academic_year">
-                                </div>
+                                <button type="submit" class="btn btn-primary" onclick="return validate_form()">Cập
+                                    nhật</button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary" onclick="return validate_form()">Thêm</button>
                     </form>
                     <br>
-                    <a href="{{ route('admin.courses.index') }}">
+                    <a href="{{ route('admin.majors.index') }}">
                         <button type="button" class="btn btn-outline-primary dripicons-arrow-thin-left">
                             Quay lại
                         </button>
@@ -40,7 +45,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection
 @push('js')

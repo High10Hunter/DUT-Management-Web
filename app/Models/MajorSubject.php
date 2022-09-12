@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class MajorSubject extends Model
 {
-    public $table = 'major_subject';
     use HasFactory;
+    public $table = 'major_subject';
+
+    protected $fillable = [
+        'major_id',
+        'subject_id',
+    ];
+
+    public $timestamps = false;
 }

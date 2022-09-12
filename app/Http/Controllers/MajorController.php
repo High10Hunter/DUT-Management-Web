@@ -5,82 +5,94 @@ namespace App\Http\Controllers;
 use App\Models\Major;
 use App\Http\Requests\StoreMajorRequest;
 use App\Http\Requests\UpdateMajorRequest;
+use App\Imports\MajorsImport;
+use App\Models\Faculty;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class MajorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    use ResponseTrait;
+    public object $model;
+    public string $table;
+
+    public function __construct()
     {
-        //
+        $this->model = Major::query();
+        $this->table = (new Major())->getTable();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $selectedFaculty = $request->get('faculty_id');
+        $faculties = Faculty::get([
+            'id',
+            'name',
+        ]);
+
+
+        $search = $request->get('q');
+        $query = $this->model->clone()
+            ->with(['faculty:id,name']);
+
+        if (!is_null($selectedFaculty)) {
+            $query->where('faculty_id', $request->get('faculty_id'));
+        }
+
+        $query = $query->where('name', 'like', '%' . $search . '%');
+
+        $data = $query->paginate(10)
+            ->appends($request->all());
+
+        return view("admin.$this->table.index", [
+            'data' => $data,
+            'faculties' => $faculties,
+            'selectedFaculty' => $selectedFaculty,
+            'search' => $search,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreMajorRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreMajorRequest $request)
+    public function importCSV(Request $request): JsonResponse
     {
-        //
+        DB::beginTransaction();
+        try {
+            Excel::import(new MajorsImport, $request->file('file'));
+            DB::commit();
+            return $this->successResponse();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->errorResponse($th->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Major  $major
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Major $major)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Major  $major
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Major $major)
     {
-        //
+        $faculties = Faculty::get([
+            'id',
+            'name',
+        ]);
+
+        return view("admin.$this->table.edit", [
+            'major' => $major,
+            'faculties' => $faculties,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateMajorRequest  $request
-     * @param  \App\Models\Major  $major
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateMajorRequest $request, Major $major)
+    public function update(Request $request, $majorId)
     {
-        //
-    }
+        $updateArr = [];
+        $updateArr = $request->validate([
+            'name' => 'required',
+            'faculty_id' => 'required',
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Major  $major
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Major $major)
-    {
-        //
+        $this->model->where('id', $majorId)
+            ->update($updateArr);
+
+        session()->put('success', 'Cập nhật người dùng thành công');
+        return redirect()->route("admin.$this->table.index");
     }
 }

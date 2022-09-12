@@ -30,10 +30,12 @@ class StoreCourseRequest extends FormRequest
             'begin_academic_year' => [
                 'nullable',
                 'date',
+                'before:end_academic_year',
             ],
             'end_academic_year' => [
                 'nullable',
                 'date',
+                'after:begin_academic_year',
             ],
         ];
 

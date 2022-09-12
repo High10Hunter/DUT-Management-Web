@@ -1,7 +1,6 @@
             <!-- ========== Left Sidebar Start ========== -->
             <div class="left-side-menu left-side-menu-detached mm-active">
                 <!--- Sidemenu -->
-
                 <ul class="metismenu side-nav mm-show">
 
                     <li class="side-nav-item">
@@ -54,9 +53,9 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="apps-chat.html" class="side-nav-link">
+                        <a href="{{ route('admin.subjects.index') }}" class="side-nav-link">
                             <i class="mdi mdi-folder-text"></i>
-                            <span> Quản lý khoa - chuyên ngành </span>
+                            <span> Quản lý môn - chuyên ngành </span>
                         </a>
                     </li>
             </div>
