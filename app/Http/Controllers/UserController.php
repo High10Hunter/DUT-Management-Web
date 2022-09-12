@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
+use App\Http\Requests\User\StoreEAOStaffRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
-use App\Http\Requests\User\StoreUserRequest;
 use App\Imports\UsersImport;
 use App\Models\_Class;
 use App\Models\Faculty;
@@ -68,28 +69,12 @@ class UserController extends Controller
         ]);
     }
 
-    public function create()
+    public function createEAOStaff()
     {
-        $roles = UserRoleEnum::getRolesForFilter();
-        $faculties = Faculty::get([
-            'id',
-            'name',
-        ]);
-        $classes = _Class::get([
-            'id',
-            'name',
-        ]);
-        return view(
-            "admin.$this->table.create",
-            [
-                'roles' => $roles,
-                'faculties' => $faculties,
-                'classes' => $classes,
-            ]
-        );
+        return view("admin.$this->table.create");
     }
 
-    public function store(StoreUserRequest $request)
+    public function storeEAOStaff(StoreEAOStaffRequest $request)
     {
         $arr = [];
         $arr = $request->validated();
@@ -102,6 +87,8 @@ class UserController extends Controller
             );
             $arr['avatar'] = $path;
         }
+
+        $arr['role'] = UserRoleEnum::EAO_STAFF;
         $arr['username'] = UserRoleEnum::getRoleForAuthentication((int)$arr['role']);
         $arr['password'] = UserRoleEnum::getRoleForAuthentication((int)$arr['role']);
 
@@ -145,7 +132,7 @@ class UserController extends Controller
             'name',
         ]);
 
-        return view('admin.users.edit', [
+        return view("admin.$this->table.edit", [
             'user' => $user,
             'roles' => $roles,
             'faculties' => $faculties,
@@ -153,14 +140,7 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateUserRequest  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(StoreUserRequest $request, $userId)
+    public function update(UpdateUserRequest $request, $userId)
     {
         $updateArr = [];
         $updateArr = $request->validated();
@@ -220,8 +200,8 @@ class UserController extends Controller
 
     public function destroy($userId)
     {
-        $this->model->where('id', $userId)->delete();
-
+        if (isAdmin())
+            $this->model->where('id', $userId)->delete();
         return redirect()->route("admin.$this->table.index");
     }
 }

@@ -3,9 +3,12 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4>Quản lý người dùng</h4>
+                <h4 class="page-title">Quản lý người dùng</h4>
             </div>
-
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
             {{-- success notification when adding or updating new staff --}}
             @if (session('success'))
                 <div class="alert alert-success">
@@ -15,140 +18,144 @@
             @endif
 
             <div class="card">
-                <div class="card-header">
-                    <form id="form-filter" method="GET" class="form-inline">
-                        <div class="form-group">
-                            <label for="role">Vai trò</label>
-                            <div class="col-6">
-                                <select class="custom-select select-filter" id="role" name="role">
-                                    <option value="" selected>Tất cả</option>
-                                    @foreach ($roles as $role => $value)
-                                        <option value="{{ $value }}"
-                                            @if ((string) $value == $selectedRole) selected @endif>
-                                            {{ $role }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="status">Tình trạng</label>
-                            <div class="col-6">
-                                <select class="custom-select select-filter" name="status">
-                                    <option value="" selected>Tất cả</option>
-                                    @foreach ($status as $each => $value)
-                                        <option value="{{ $value }}"
-                                            @if ((string) $value == $selectedStatus) selected @endif>
-                                            {{ $each }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="input-group form-group w-50">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm tên người dùng..."
-                                aria-label="Recipient's username" name="q" value="{{ $search }}">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="submit">Tìm kiếm</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
                 <div class="card-body container-fluid">
-                    <div class="form-group">
-                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                            Thêm mới
-                        </a>
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#import-csv-modal">
-                            Tải lên file CSV
-                        </button>
+                    <div class="row mb-2">
+                        <div class="col-lg-8">
+                            <form id="form-filter" method="GET" class="form-inline">
+                                <div class="form-group mb-2">
+                                    <div class="input-group form-group">
+                                        <input type="text" class="form-control" placeholder="Tìm kiếm tên người dùng..."
+                                            aria-label="Recipient's username" name="q" value="{{ $search }}">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-secondary" type="submit">Tìm kiếm</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <label for="status-select" class="mr-2">Vai trò</label>
+                                    <select class="custom-select select-filter" id="role" name="role">
+                                        <option value="" selected>Tất cả</option>
+                                        @foreach ($roles as $role => $value)
+                                            <option value="{{ $value }}"
+                                                @if ((string) $value == $selectedRole) selected @endif>
+                                                {{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mx-sm-1 mb-2">
+                                    <label for="status-select" class="mr-2">Tình trạng</label>
+                                    <select class="custom-select select-filter" name="status">
+                                        <option value="" selected>Tất cả</option>
+                                        @foreach ($status as $each => $value)
+                                            <option value="{{ $value }}"
+                                                @if ((string) $value == $selectedStatus) selected @endif>
+                                                {{ $each }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="text-lg-right">
+                                <a href="{{ route('admin.users.create_eao_staff') }}" class="btn btn-primary md-2 mr-2">
+                                    <i class="mdi mdi-plus-circle mr-2"></i> Thêm mới
+                                </a>
+                                {{-- <button type="button" class="btn btn-success" data-toggle="modal"
+                                    data-target="#import-csv-modal">
+                                    Tải lên file CSV
+                                </button> --}}
+                            </div>
+                        </div><!-- end col-->
                     </div>
-                    <table class="table mb-0 table-hover table-responsive">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Avatar</th>
-                                <th scope="col">Tên</th>
-                                <th scope="col">Giới tính</th>
-                                <th scope="col">Tuổi</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Số điện thoại</th>
-                                <th scope="col">Khoa</th>
-                                <th scope="col">Lớp</th>
-                                <th scope="col">Vai trò</th>
-                                <th scope="col">Tình trạng</th>
-                                <th scope="col">Chỉnh sửa</th>
-                                <th scope="col">Xoá</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            @foreach ($data as $each)
+                    <div class="table-responsive">
+                        <table class="table table-hover table-centered mb-0">
+                            <thead class="thead-light">
                                 <tr>
-                                    <td>{{ $each->id }}</td>
-                                    <td>
-                                        @if ($each->avatar)
-                                            <img src="{{ asset('storage/' . $each->avatar) }}" class="img-fluid avatar-lg">
-                                        @endif
-                                    </td>
-                                    <td>{{ $each->name }}</td>
-                                    <td>{{ $each->gender_name }}</td>
-                                    <td>{{ $each->age }}</td>
-                                    <td>
-                                        @if ($each->email)
-                                            <a href="mailto:{{ $each->email }}">
-                                                {{ $each->email }}
-                                            </a>
-                                        @else
-                                            <i class="dripicons-wrong"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($each->phone_number)
-                                            {{ $each->phone_number }}
-                                        @else
-                                            <i class="dripicons-wrong"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if (optional($each->faculty)->name)
-                                            {{ optional($each->faculty)->name }}
-                                        @else
-                                            <i class="dripicons-wrong"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if (optional($each->class)->name != null)
-                                            {{ optional($each->class)->name }}
-                                        @else
-                                            <i class="dripicons-wrong"></i>
-                                        @endif
-                                    </td>
-                                    <td>{{ $each->role_name }}</td>
-                                    <td>{{ $each->status_name }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.users.edit', ['user' => $each->id]) }}">
-                                            <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
-                                            </button>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <button type="button" id="delete-btn" class="btn btn-danger" data-toggle="modal"
-                                            data-target="#warning-confirm-delete-modal"
-                                            data-href="{{ route('admin.users.destroy', ['user' => $each->id]) }}">
-                                            <i class="dripicons-trash"></i>
-                                        </button>
-                                    </td>
+                                    <th>#</th>
+                                    <th>Avatar</th>
+                                    <th>Tên</th>
+                                    <th>Giới tính</th>
+                                    <th>Tuổi</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Khoa</th>
+                                    <th>Lớp</th>
+                                    <th>Vai trò</th>
+                                    <th>Tình trạng</th>
+                                    <th>Chỉnh sửa</th>
+                                    <th>Xoá</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <nav>
-                        <ul class="pagination pagination-rounded mb-0">
-                            {{ $data->links() }}
-                        </ul>
-                    </nav>
+                            </thead>
+
+                            <tbody>
+                                @foreach ($data as $each)
+                                    <tr>
+                                        <td>{{ $each->id }}</td>
+                                        <td>
+                                            @if ($each->avatar)
+                                                <img src="{{ asset('storage/' . $each->avatar) }}"
+                                                    class="img-fluid avatar-lg">
+                                            @endif
+                                        </td>
+                                        <td>{{ $each->name }}</td>
+                                        <td>{{ $each->gender_name }}</td>
+                                        <td>{{ $each->age }}</td>
+                                        <td>
+                                            @if ($each->email)
+                                                <a href="mailto:{{ $each->email }}">
+                                                    {{ $each->email }}
+                                                </a>
+                                            @else
+                                                <i class="dripicons-wrong"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($each->phone_number)
+                                                {{ $each->phone_number }}
+                                            @else
+                                                <i class="dripicons-wrong"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (optional($each->faculty)->name)
+                                                {{ optional($each->faculty)->name }}
+                                            @else
+                                                <i class="dripicons-wrong"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (optional($each->class)->name != null)
+                                                {{ optional($each->class)->name }}
+                                            @else
+                                                <i class="dripicons-wrong"></i>
+                                            @endif
+                                        </td>
+                                        <td>{{ $each->role_name }}</td>
+                                        <td>{{ $each->status_name }}</td>
+                                        <td>
+                                            <a href="{{ route('admin.users.edit', ['user' => $each->id]) }}">
+                                                <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
+                                                </button>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <button type="button" id="delete-btn" class="btn btn-danger"
+                                                data-toggle="modal" data-target="#warning-confirm-delete-modal"
+                                                data-href="{{ route('admin.users.destroy', ['user' => $each->id]) }}">
+                                                <i class="dripicons-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <nav>
+                            <ul class="pagination pagination-rounded mb-0">
+                                {{ $data->links() }}
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,7 +219,7 @@
 
             //confirm delete
             $(document).on('click', '#delete-btn', function(event) {
-                // event.preventDefault();
+                event.preventDefault();
                 let href = $(this).data('href');
                 let currentDeleteBtn = $(this);
 

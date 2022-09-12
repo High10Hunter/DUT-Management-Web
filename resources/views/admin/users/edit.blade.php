@@ -76,7 +76,7 @@
                                     @endforeach
                                 </select>
                                 <label for="faculty-select">Khoa</label>
-                                <select id="faculty-select" name="faculty" class="custom-select mb-3">
+                                <select id="faculty-select" name="faculty_id" class="custom-select mb-3">
                                     <option selected value=""></option>
                                     @foreach ($faculties as $faculty)
                                         <option value="{{ $faculty->id }}"
@@ -86,7 +86,7 @@
                                     @endforeach
                                 </select>
                                 <label for="class-select">Lớp</label>
-                                <select id="class-select" name="class" class="custom-select mb-3">
+                                <select id="class-select" name="class_id" class="custom-select mb-3">
                                     <option selected value=""></option>
                                     @foreach ($classes as $class)
                                         <option value="{{ $class->id }}"

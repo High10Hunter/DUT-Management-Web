@@ -4,11 +4,11 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="form-title">Thêm mới người dùng</h4>
+                    <h4 class="form-title">Thêm mới giáo vụ</h4>
                     <p class="text-muted font-14">
-                        Điền đầy đủ các thông tin sau
+                        Điền các thông tin sau
                     </p>
-                    <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.users.store_eao_staff') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-lg-6">
@@ -22,6 +22,21 @@
                                     <span id="birthday-error" class="display_error" style="color: red"></span>
                                     <input class="form-control" id="birthday-input" type="date" name="birthday">
                                 </div>
+                                <label>Giới tính(*)</label>
+                                <span id="gender-error" class="display_error" style="color: red"></span>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="genderMale" name="gender" class="custom-control-input"
+                                        value="1">
+                                    <label class="custom-control-label" for="genderMale">Nam</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="genderFemale" name="gender" class="custom-control-input"
+                                        value="0">
+                                    <label class="custom-control-label" for="genderFemale">Nữ</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
                                 <div class="mt-3">
                                     <div class="form-group">
                                         <label for="email">Email</label>
@@ -37,44 +52,6 @@
                                         <input type="file" id="avatar" name="avatar" class="form-control-file">
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <label>Giới tính(*)</label>
-                                <span id="gender-error" class="display_error" style="color: red"></span>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="genderMale" name="gender" class="custom-control-input"
-                                        value="1">
-                                    <label class="custom-control-label" for="genderMale">Nam</label>
-                                </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="genderFemale" name="gender" class="custom-control-input"
-                                        value="0">
-                                    <label class="custom-control-label" for="genderFemale">Nữ</label>
-                                </div>
-                                <br>
-                                <label for="role-select">Vai trò(*)</label>
-                                <span id="role-error" class="display_error" style="color: red"></span>
-                                <select id="role-select" name="role" class="custom-select mb-3">
-                                    <option selected></option>
-                                    @foreach ($roles as $role => $value)
-                                        <option value="{{ $value }}">{{ $role }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="faculty-select">Khoa</label>
-                                <select id="faculty-select" name="faculty" class="custom-select mb-3">
-                                    <option selected value=""></option>
-                                    @foreach ($faculties as $faculty)
-                                        <option value="{{ $faculty->id }}">{{ $faculty->name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="class-select">Lớp</label>
-                                <select id="class-select" name="class" class="custom-select mb-3">
-                                    <option selected value=""></option>
-                                    @foreach ($classes as $class)
-                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary float-right"
@@ -124,14 +101,6 @@
                 check = false;
             } else {
                 document.getElementById('birthday-error').innerHTML = "";
-            }
-
-            let role = document.getElementById('role-select').value;
-            if (!role) {
-                document.getElementById('role-error').innerHTML = "Vui lòng chọn vai trò";
-                check = false;
-            } else {
-                document.getElementById('role-error').innerHTML = "";
             }
 
             if (check == false)
