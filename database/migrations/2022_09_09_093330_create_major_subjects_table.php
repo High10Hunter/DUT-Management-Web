@@ -16,9 +16,12 @@ class CreateMajorSubjectsTable extends Migration
         Schema::create('major_subject', function (Blueprint $table) {
             $table->foreignId('major_id')->constrained();
             $table->foreignId('subject_id')->constrained();
+            $table->foreignId('course_id')->constrained();
+            $table->smallInteger('number_of_credits');
             $table->primary([
                 'major_id',
-                'subject_id'
+                'subject_id',
+                'course_id'
             ]);
         });
     }
