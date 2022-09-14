@@ -4,7 +4,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="form-title">Chỉnh sửa thông tin khoá</h4>
+                    <h4 class="form-title">Chỉnh sửa thông tin chuyên ngành</h4>
                     <p class="text-muted font-14">
                         Sửa đổi/cập nhật các thông tin sau
                     </p>
@@ -21,8 +21,9 @@
                                         value="{{ $major->name }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="faculty-select">Khoa</label>
-                                    <select id="faculty-select" name="faculty_id" class="custom-select mb-3">
+                                    <label for="faculty-select">Khoa(*)</label>
+                                    <select id="faculty-select" name="faculty_id" class="select2 mb-3"
+                                        data-toggle="select2">
                                         @foreach ($faculties as $faculty)
                                             <option value="{{ $faculty->id }}"
                                                 @if ($major->faculty_id == $faculty->id) selected @endif>

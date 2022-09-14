@@ -53,10 +53,23 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="{{ route('admin.subjects.index') }}" class="side-nav-link">
+                        <a href="#" class="side-nav-link" aria-expanded="true">
                             <i class="mdi mdi-folder-text"></i>
                             <span> Quản lý môn - chuyên ngành </span>
+                            <span class="menu-arrow"></span>
                         </a>
+                        <ul class="side-nav-second-level mm-collapse" aria-expanded="false" style="height: 0px;">
+                            <li>
+                                <a href="{{ route('admin.subjects.index') }}">
+                                    Quản lý môn
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.majors.index') }}">
+                                    Quản lý chuyên ngành
+                                </a>
+                            </li>
+                        </ul>
                     </li>
             </div>
             <!-- Left Sidebar End -->

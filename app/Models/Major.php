@@ -20,4 +20,18 @@ class Major extends Model
     }
 
     public $timestamps = false;
+
+    public function subjects($courseId = null)
+    {
+        if (is_null($courseId)) {
+            return $this->belongsToMany(Subject::class, 'major_subject')
+                ->using(MajorSubject::class)
+                ->withPivot('course_id', 'number_of_credits');
+        }
+
+        return $this->belongsToMany(Subject::class, 'major_subject')
+            ->using(MajorSubject::class)
+            ->withPivot('course_id', 'number_of_credits')
+            ->wherePivot('course_id', $courseId);
+    }
 }

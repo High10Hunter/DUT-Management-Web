@@ -22,6 +22,9 @@
                 <div class="card-body">
                     <div class="row mb-2">
                         <div class="col-lg-8">
+                            <a href="{{ route('admin.courses.index') }}">
+                                <i class="mdi mdi-reload"> Tải lại</i>
+                            </a>
                             <form class="form-inline">
                                 <div class="form-group mb-2">
                                     <div class="input-group form-group">

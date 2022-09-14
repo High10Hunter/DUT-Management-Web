@@ -39,6 +39,7 @@ Route::group([
     'as' => 'subjects.',
 ], static function () {
     Route::get('/', [SubjectController::class, 'index'])->name('index');
+    Route::post('/import_csv', [SubjectController::class, 'importCSV'])->name('import_csv');
 });
 
 

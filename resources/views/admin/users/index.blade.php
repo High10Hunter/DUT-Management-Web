@@ -21,6 +21,9 @@
                 <div class="card-body container-fluid">
                     <div class="row mb-2">
                         <div class="col-lg-8">
+                            <a href="{{ route('admin.users.index') }}">
+                                <i class="mdi mdi-reload"> Tải lại</i>
+                            </a>
                             <form id="form-filter" method="GET" class="form-inline">
                                 <div class="form-group mb-2">
                                     <div class="input-group form-group">

@@ -16,20 +16,21 @@ class MajorsImport implements ToArray, WithHeadingRow
                 $majorName = $each['ten_nganh'];
                 $facultyName = $each['khoa'];
 
-                $faculty_id = Faculty::firstOrCreate([
-                    'name' => $facultyName,
-                ])->id;
+                if (!is_null($facultyName)) {
+                    $facultyId = Faculty::firstOrCreate([
+                        'name' => trim($facultyName),
+                    ])->id;
+                }
 
-                $storeArr['name'] =  $majorName;
-                $storeArr['faculty_id'] = $faculty_id;
-
-                Major::create([
-                    'name' => $majorName,
-                    'faculty_id' => $faculty_id,
-                ]);
+                if (!is_null($majorName) && !is_null($facultyId)) {
+                    Major::create([
+                        'name' => $majorName,
+                        'faculty_id' => $facultyId,
+                    ]);
+                }
             }
         } catch (\Throwable $th) {
-            $th->getMessage();
+            dd($each, $th->getMessage());
         }
     }
 }

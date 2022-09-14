@@ -22,8 +22,10 @@
                 <div class="card-body">
                     <div class="row mb-2">
                         <div class="col-lg-8">
+                            <a href="{{ route('admin.majors.index') }}">
+                                <i class="mdi mdi-reload"> Tải lại</i>
+                            </a>
                             <form id="form-filter" method="GET" class="form-inline">
-                                @csrf
                                 <div class="form-group mb-2">
                                     <div class="input-group form-group">
                                         <input type="text" class="form-control" placeholder="Tìm khoá..."
@@ -32,9 +34,9 @@
                                             <button class="btn btn-secondary" type="submit">Tìm kiếm</button>
                                         </div>
                                     </div>
-                                    <div class="form-group mx-sm-3">
+                                    <div class="form-group mx-sm-3 mb-3">
                                         <label for="faculty-select" class="mr-2">Khoa</label>
-                                        <select class="custom-select select-filter" name="faculty_id">
+                                        <select class="select2 select-filter" data-toggle="select2" name="faculty_id">
                                             <option value="" selected>Tất cả</option>
                                             @foreach ($faculties as $faculty)
                                                 <option value="{{ $faculty->id }}"
@@ -54,11 +56,6 @@
                                     data-target="#import-csv-modal">
                                     <i class="mdi mdi-file-table"></i> Tải lên file CSV
                                 </button>
-
-                                <a href="{{ route('admin.subjects.index') }}" class="btn btn-secondary md-2 mr-2">
-                                    <i class="dripicons-arrow-left"></i>
-                                    Quản lý môn
-                                </a>
                             </div>
                         </div><!-- end col-->
                     </div>
@@ -132,6 +129,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
             $(document).ready(function() {
                 $(".select-filter").change(function(e) {
                     $("#form-filter").submit();

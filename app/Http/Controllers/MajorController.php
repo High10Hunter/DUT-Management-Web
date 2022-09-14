@@ -33,7 +33,6 @@ class MajorController extends Controller
             'name',
         ]);
 
-
         $search = $request->get('q');
         $query = $this->model->clone()
             ->with(['faculty:id,name']);
