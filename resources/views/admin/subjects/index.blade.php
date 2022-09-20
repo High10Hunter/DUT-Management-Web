@@ -124,9 +124,11 @@
                             </tbody>
                         </table>
                         <nav>
-                            <ul class="pagination pagination-rounded mb-0">
-                                {{ $data->links() }}
-                            </ul>
+                            @if (is_null($selectedCourse))
+                                <ul class="pagination pagination-rounded mb-0">
+                                    {{ $data->links() }}
+                                </ul>
+                            @endif
                         </nav>
                     </div>
                 </div> <!-- end card-body-->

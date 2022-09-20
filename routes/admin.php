@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,4 +52,15 @@ Route::group([
     Route::post('/import_csv', [MajorController::class, 'importCSV'])->name('import_csv');
     Route::get('/edit/{major}', [MajorController::class, 'edit'])->name('edit');
     Route::put('/edit/{major}', [MajorController::class, 'update'])->name('update');
+});
+
+Route::group([
+    'prefix' => 'students',
+    'as' => 'students.',
+], static function () {
+    Route::get('/', [StudentController::class, 'index'])->name('index');
+    Route::post('/import_csv', [StudentController::class, 'importCSV'])->name('import_csv');
+    Route::get('/edit/{student}', [StudentController::class, 'edit'])->name('edit');
+    Route::put('/edit/{student}', [StudentController::class, 'update'])->name('update');
+    Route::post('/destroy/{student}', [StudentController::class, 'destroy'])->name('destroy');
 });

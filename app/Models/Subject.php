@@ -11,7 +11,6 @@ class Subject extends Model
 
     protected $fillable = [
         'name',
-        'number_of_credits',
     ];
 
     public $timestamps = false;

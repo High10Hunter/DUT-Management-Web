@@ -11,7 +11,7 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="" class="side-nav-link">
+                        <a href="{{ route('admin.students.index') }}" class="side-nav-link">
                             <i class="mdi mdi-school"></i>
                             <span> Quản lý sinh viên </span>
                         </a>

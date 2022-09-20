@@ -52,7 +52,7 @@ class UsersImport implements ToArray, WithHeadingRow
                     ]);
             }
         } catch (\Throwable $th) {
-            $th->getMessage();
+            dd($th->getMessage());
         }
     }
 }
