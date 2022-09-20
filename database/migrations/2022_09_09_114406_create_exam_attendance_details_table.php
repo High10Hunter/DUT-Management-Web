@@ -15,8 +15,7 @@ class CreateExamAttendanceDetailsTable extends Migration
     {
         Schema::create('exam_attendance_details', function (Blueprint $table) {
             $table->foreignId('exam_id')->constrained();
-            $table->unsignedBigInteger('student_id');
-            $table->foreign('student_id')->references('id')->on('users');
+            $table->foreignId('student_id')->constrained();
             $table->primary([
                 'exam_id',
                 'student_id'

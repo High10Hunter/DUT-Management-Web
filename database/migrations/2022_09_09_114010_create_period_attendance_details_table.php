@@ -15,8 +15,7 @@ class CreatePeriodAttendanceDetailsTable extends Migration
     {
         Schema::create('period_attendance_details', function (Blueprint $table) {
             $table->foreignId('period_id')->constrained();
-            $table->unsignedBigInteger('student_id');
-            $table->foreign('student_id')->references('id')->on('users');
+            $table->foreignId('student_id')->constrained();
             $table->integer('status')->default(0);
             $table->primary([
                 'period_id',

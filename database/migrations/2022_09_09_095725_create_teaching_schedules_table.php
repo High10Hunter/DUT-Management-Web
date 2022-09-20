@@ -16,8 +16,7 @@ class CreateTeachingSchedulesTable extends Migration
         Schema::create('teaching_schedules', function (Blueprint $table) {
             $table->foreignId('class_id')->constrained();
             $table->foreignId('subject_id')->constrained();
-            $table->unsignedBigInteger('lecturer_id');
-            $table->foreign('lecturer_id')->references('id')->on('users');
+            $table->foreignId('lecturer_id')->constrained();
             $table->primary([
                 'class_id',
                 'subject_id'

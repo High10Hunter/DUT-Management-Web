@@ -20,9 +20,9 @@ class CreateExamsTable extends Migration
             $table->date('date');
             $table->smallInteger('type')->default(0);
             $table->unsignedBigInteger('proctor_id');
-            $table->foreign('proctor_id')->references('id')->on('users');
+            $table->foreign('proctor_id')->references('id')->on('lecturers');
             $table->unsignedBigInteger('examiner_id');
-            $table->foreign('examiner_id')->references('id')->on('users');
+            $table->foreign('examiner_id')->references('id')->on('lecturers');
             $table->unique([
                 'class_id',
                 'subject_id',

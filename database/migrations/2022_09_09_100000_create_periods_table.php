@@ -18,8 +18,7 @@ class CreatePeriodsTable extends Migration
             $table->foreignId('class_id')->constrained();
             $table->foreignId('subject_id')->constrained();
             $table->date('date');
-            $table->unsignedBigInteger('lecturer_id');
-            $table->foreign('lecturer_id')->references('id')->on('users');
+            $table->foreignId('lecturer_id')->constrained();
             $table->unique([
                 'class_id',
                 'subject_id',
