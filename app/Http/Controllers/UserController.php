@@ -38,14 +38,7 @@ class UserController extends Controller
         $roles = UserRoleEnum::getRolesForFilter();
         $status = UserStatusEnum::getStatusForFilter();
 
-        $query = $this->model->clone()
-            ->with(
-                [
-                    'faculty:id,name',
-                    'class:id,name',
-                ]
-            )
-            ->latest();
+        $query = $this->model->latest();
 
         if (!is_null($selectedRole)) {
             $query->where('role', $request->get('role'));
@@ -120,60 +113,78 @@ class UserController extends Controller
         return redirect()->route("admin.$this->table.index");
     }
 
-    public function edit(User $user)
-    {
-        $roles = UserRoleEnum::getRolesForFilter();
-        $faculties = Faculty::get([
-            'id',
-            'name',
-        ]);
-        $classes = _Class::get([
-            'id',
-            'name',
-        ]);
+    // public function edit(User $user)
+    // {
+    //     $roles = UserRoleEnum::getRolesForFilter();
+    //     $faculties = Faculty::get([
+    //         'id',
+    //         'name',
+    //     ]);
+    //     $classes = _Class::get([
+    //         'id',
+    //         'name',
+    //     ]);
 
-        return view("admin.$this->table.edit", [
-            'user' => $user,
-            'roles' => $roles,
-            'faculties' => $faculties,
-            'classes' => $classes,
-        ]);
-    }
+    //     return view("admin.$this->table.edit", [
+    //         'user' => $user,
+    //         'roles' => $roles,
+    //         'faculties' => $faculties,
+    //         'classes' => $classes,
+    //     ]);
+    // }
 
-    public function update(UpdateUserRequest $request, $userId)
+    // public function update(UpdateUserRequest $request, $userId)
+    // {
+    //     $updateArr = [];
+    //     $updateArr = $request->validated();
+
+    //     if ($request->file('new_avatar')) {
+    //         //remove old image
+    //         if (!is_null($request->old_avatar))
+    //             //Storage:: get into 'storage/app' path
+    //             Storage::delete('public/' . $request->old_avatar);
+
+    //         //upload new avatar
+    //         $path = $request->file('new_avatar')->store(
+    //             'avatars/users',
+    //             'public'
+    //         );
+
+    //         //move new avatar to userID folder
+    //         $newPath = moveAvatarToUserIDFolderWhenUpdate(
+    //             $userId,
+    //             $path,
+    //             'public/avatars/users/',
+    //             'avatars/users/'
+    //         );
+
+    //         $updateArr['avatar'] = $newPath;
+    //     } else
+    //         $updateArr['avatar'] = $request->old_avatar;
+
+    //     // reset username and password
+    //     if ($request->resetAccount == "on") {
+    //         $updateArr['username'] = UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId;
+    //         $updateArr['password'] = Hash::make(UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId);
+    //     }
+
+    //     $this->model
+    //         ->where('id', $userId)
+    //         ->update(
+    //             $updateArr
+    //         );
+
+    //     session()->put('success', 'Cập nhật người dùng thành công');
+    //     return redirect()->route("admin.$this->table.index");
+    // }
+
+    public function resetAccount($userId)
     {
         $updateArr = [];
-        $updateArr = $request->validated();
+        $userRole = $this->model->where('id', $userId)->value('role');
 
-        if ($request->file('new_avatar')) {
-            //remove old image
-            if (!is_null($request->old_avatar))
-                //Storage:: get into 'storage/app' path
-                Storage::delete('public/' . $request->old_avatar);
-
-            //upload new avatar
-            $path = $request->file('new_avatar')->store(
-                'avatars/users',
-                'public'
-            );
-
-            //move new avatar to userID folder
-            $newPath = moveAvatarToUserIDFolderWhenUpdate(
-                $userId,
-                $path,
-                'public/avatars/users/',
-                'avatars/users/'
-            );
-
-            $updateArr['avatar'] = $newPath;
-        } else
-            $updateArr['avatar'] = $request->old_avatar;
-
-        // reset username and password
-        if ($request->resetAccount == "on") {
-            $updateArr['username'] = UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId;
-            $updateArr['password'] = Hash::make(UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId);
-        }
+        $updateArr['username'] = UserRoleEnum::getRoleForAuthentication((int)$userRole) . $userId;
+        $updateArr['password'] = Hash::make(UserRoleEnum::getRoleForAuthentication((int)$userRole) . $userId);
 
         $this->model
             ->where('id', $userId)
