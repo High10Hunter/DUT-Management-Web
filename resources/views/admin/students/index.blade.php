@@ -81,7 +81,7 @@
                             <div class="text-lg-right">
                                 <button type="button" class="btn btn-success" data-toggle="modal"
                                     data-target="#import-csv-modal">
-                                    Tải lên file CSV
+                                    <i class="mdi mdi-file-table"></i> Tải lên file CSV
                                 </button>
                             </div>
                         </div><!-- end col-->
@@ -90,7 +90,7 @@
                     <div class="table-responsive">
                         <table class="table table-hover table-centered mb-0">
                             <thead class="thead-light">
-                                <tr>
+                                <tr class="text-center">
                                     <th>Mã SV</th>
                                     <th>Avatar</th>
                                     <th>Tên</th>
@@ -107,7 +107,7 @@
 
                             <tbody>
                                 @foreach ($data as $each)
-                                    <tr>
+                                    <tr class="text-center">
                                         <td>{{ $each->student_code }}</td>
                                         <td>
                                             @if ($each->avatar)
@@ -177,7 +177,7 @@
                 <div class="modal-body p-4">
                     <div class="text-center">
                         <i class="dripicons-warning h1 text-warning"></i>
-                        <h4 class="mt-2">Bạn có chắc chắn muốn xoá người dùng này ?</h4>
+                        <h4 class="mt-2">Bạn có chắc chắn muốn xoá sinh viên này ?</h4>
                         <button type="button" id="confirm-delete"
                             class="btn btn-outline-primary my-2 btn-rounded">Có</button>
                         <button type="button" class="btn btn-outline-danger my-2 btn-rounded"
@@ -210,7 +210,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="btn-import-csv">Tải lên</button>
+                    <button type="button" class="btn btn-success" id="btn-import-csv">
+                        Tải lên
+                    </button>
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -262,11 +264,15 @@
                 formData.append("file", $("#csv")[0].files[0]);
                 formData.append("studentsPerClass", $("#studentsPerClass").val());
 
+                $(this).prop('disabled', true);
+                $(this).html("<span role='btn-status'></span>Đang tải lên");
+                $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
+
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('admin.students.import_csv') }}',
                     cache: false,
-                    async: false,
+                    // async: false,
                     data: formData,
                     dataType: 'json',
                     contentType: false,
@@ -283,6 +289,9 @@
                         $("#import-csv-modal").modal('hide');
                     },
                     error: function(response) {
+                        $('#btn-import-csv').prop('disabled', false);
+                        $("span[role='btn-status']").remove();
+                        $('#btn-import-csv').html('Tải lên');
                         $.toast({
                             heading: 'Thất bại',
                             text: 'Không thể tải file lên',

@@ -49,7 +49,7 @@
                     <div class="table-responsive">
                         <table class="table table-centered table-hover mb-0">
                             <thead class="thead-light">
-                                <tr>
+                                <tr class="text-center">
                                     <th>#</th>
                                     <th>Tên khoá</th>
                                     <th>Năm bắt đầu</th>
@@ -59,7 +59,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($data as $each)
-                                    <tr>
+                                    <tr class="text-center">
                                         <td>{{ $each->id }}</td>
                                         <td>{{ $each->name }}</td>
                                         <td>

@@ -74,7 +74,7 @@
                     <div class="table-responsive">
                         <table class="table table-hover table-centered mb-0">
                             <thead class="thead-light">
-                                <tr>
+                                <tr class="text-center">
                                     <th>#</th>
                                     <th>Avatar</th>
                                     <th>Tên</th>
@@ -82,18 +82,16 @@
                                     <th>Tuổi</th>
                                     <th>Email</th>
                                     <th>Số điện thoại</th>
-                                    <th>Khoa</th>
-                                    <th>Lớp</th>
                                     <th>Vai trò</th>
                                     <th>Tình trạng</th>
-                                    <th>Chỉnh sửa</th>
+                                    <th>Reset tài khoản</th>
                                     <th>Xoá</th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @foreach ($data as $each)
-                                    <tr>
+                                    <tr class="text-center">
                                         <td>{{ $each->id }}</td>
                                         <td>
                                             @if ($each->avatar)
@@ -120,27 +118,14 @@
                                                 <i class="dripicons-wrong"></i>
                                             @endif
                                         </td>
-                                        <td>
-                                            @if (optional($each->faculty)->name)
-                                                {{ optional($each->faculty)->name }}
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if (optional($each->class)->name != null)
-                                                {{ optional($each->class)->name }}
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
                                         <td>{{ $each->role_name }}</td>
                                         <td>{{ $each->status_name }}</td>
                                         <td>
-                                            <a href="{{ route('admin.users.edit', ['user' => $each->id]) }}">
-                                                <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
-                                                </button>
-                                            </a>
+                                            <button type="button" id="reset-btn" class="btn btn-info" data-toggle="modal"
+                                                data-target="#confirm-reset-modal"
+                                                data-href="{{ route('admin.users.reset', ['user' => $each->id]) }}">
+                                                <i class="mdi mdi-key"></i>
+                                            </button>
                                         </td>
                                         <td>
                                             <button type="button" id="delete-btn" class="btn btn-danger"
@@ -182,25 +167,18 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <!-- Import CSV Modal -->
-    <div id="import-csv-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="import-csv-modalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
+    {{-- Confirm reset account modal --}}
+    <div id="confirm-reset-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
             <div class="modal-content">
-                <div class="modal-header modal-colored-header bg-success">
-                    <h4 class="modal-title" id="import-csv-modalLabel">Tải lên file CSV</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <p>Chọn file CSV để tải lên</p>
-                        <input type="file" name="csv" id="csv"
-                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <i class="dripicons-information h1 text-info"></i>
+                        <h4 class="mt-2">Bạn có chắc chắn muốn reset tài khoản này ?</h4>
+                        <button type="button" id="confirm-reset" class="btn btn-info my-2"
+                            data-dismiss="modal">Có</button>
+                        <button type="button" class="btn btn-outline-danger my-2" data-dismiss="modal">Không</button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="btn-import-csv">Tải lên</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -245,41 +223,30 @@
 
                 });
             });
-            //csv import
-            $("#btn-import-csv").click(function() {
-                let formData = new FormData();
-                formData.append("file", $("#csv")[0].files[0]);
 
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('admin.users.import_csv') }}',
-                    cache: false,
-                    async: false,
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    enctype: 'multipart/form-data',
-                    processData: false,
-                    success: function(response) {
-                        $.toast({
-                            heading: 'Thành công',
-                            text: 'File đã được tải lên',
-                            showHideTransition: 'slide',
-                            position: 'bottom-right',
-                            icon: 'success'
-                        });
-                        $("#import-csv-modal").modal('hide');
-                    },
-                    error: function(response) {
-                        $.toast({
-                            heading: 'Thất bại',
-                            text: 'Không thể tải file lên',
-                            showHideTransition: 'fade',
-                            icon: 'error'
-                        })
-                    }
+            //confirm reset account
+            $(document).on('click', '#reset-btn', function(event) {
+                event.preventDefault();
+                let href = $(this).data('href');
+
+                $("#confirm-reset").click(function() {
+                    $.ajax({
+                        type: "POST",
+                        url: href,
+                        success: function(response) {
+                            $("#confirm-reset-modal").modal('hide');
+                            $.toast({
+                                heading: 'Reset tài khoản thành công',
+                                showHideTransition: 'slide',
+                                icon: 'success',
+                                stack: false,
+                            });
+                        }
+                    });
+
                 });
             });
+
         });
     </script>
 @endpush

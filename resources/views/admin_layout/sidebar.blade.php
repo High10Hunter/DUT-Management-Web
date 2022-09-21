@@ -18,13 +18,6 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="" class="side-nav-link">
-                            <i class="mdi mdi-account-supervisor"></i>
-                            <span> Quản lý lớp </span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
                         <a href="apps-chat.html" class="side-nav-link">
                             <i class="mdi mdi-file-document-edit"></i>
                             <span> Quản lý điểm </span>
@@ -32,7 +25,7 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="apps-chat.html" class="side-nav-link">
+                        <a href="{{ route('admin.modules.index') }}" class="side-nav-link">
                             <i class="mdi mdi-calendar-account"></i>
                             <span> Phân công lịch dạy </span>
                         </a>

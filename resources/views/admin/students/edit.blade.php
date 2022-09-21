@@ -51,7 +51,13 @@
                                     <div class="custom-control custom-radio">
                                         <input type="radio" name="status" id="statusOff" class="custom-control-input"
                                             value="0" @if ($student->status == 0) checked @endif>
-                                        <label class="custom-control-label" for="statusOff">Bảo lưu</label>
+                                        <label class="custom-control-label" for="statusOff">Nghỉ học</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" name="status" id="statusReserved"
+                                            class="custom-control-input" value="2"
+                                            @if ($student->status == 2) checked @endif>
+                                        <label class="custom-control-label" for="statusReserved">Bảo lưu</label>
                                     </div>
                                 </div>
                             </div>

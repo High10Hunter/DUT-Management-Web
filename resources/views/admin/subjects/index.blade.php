@@ -75,7 +75,7 @@
                     <div class="table-responsive">
                         <table class="table table-centered table-hover mb-0">
                             <thead class="thead-light">
-                                <tr>
+                                <tr class="text-center">
                                     <th>#</th>
                                     <th>Tên</th>
                                     <th>Ngành</th>
@@ -88,7 +88,7 @@
                                     @foreach ($data as $each)
                                         @foreach ($each->majors as $major)
                                             @if ($selectedCourse == $major->pivot->course_id)
-                                                <tr>
+                                                <tr class="text-center">
                                                     <td>{{ $each->id }}</td>
                                                     <td>{{ $each->name }}</td>
                                                     <td>{{ $major->name }}</td>
@@ -100,7 +100,7 @@
                                     @endforeach
                                 @elseif ($selectedMajor)
                                     @foreach ($data as $each)
-                                        <tr>
+                                        <tr class="text-center">
                                             <td>{{ $each->id }}</td>
                                             <td>{{ $each->name }}</td>
                                             <td>{{ $selectedMajorName }}</td>
@@ -111,7 +111,7 @@
                                 @else
                                     @foreach ($data as $each)
                                         @foreach ($each->majors as $major)
-                                            <tr>
+                                            <tr class="text-center">
                                                 <td>{{ $each->id }}</td>
                                                 <td>{{ $each->name }}</td>
                                                 <td>{{ $major->name }}</td>
@@ -179,11 +179,16 @@
                     let formData = new FormData();
                     formData.append("file", $("#csv")[0].files[0]);
 
+                    $(this).prop('disabled', true);
+                    $(this).html("<span role='btn-status'></span>Đang tải lên");
+                    $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
+
+
                     $.ajax({
                         type: 'POST',
                         url: '{{ route('admin.subjects.import_csv') }}',
                         cache: false,
-                        async: false,
+                        // async: false,
                         data: formData,
                         dataType: 'json',
                         contentType: false,
@@ -200,6 +205,9 @@
                             $("#import-csv-modal").modal('hide');
                         },
                         error: function(response) {
+                            $('#btn-import-csv').prop('disabled', false);
+                            $("span[role='btn-status']").remove();
+                            $('#btn-import-csv').html('Tải lên');
                             $.toast({
                                 heading: 'Thất bại',
                                 text: 'Không thể tải file lên',

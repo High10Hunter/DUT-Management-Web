@@ -50,6 +50,9 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-lg-2">
+                        </div>
+
                         <div class="col-md-6 col-lg-4">
                             <div class="card">
                                 <div class="card-body" style="background-color:rgb(237, 237, 9)">
@@ -77,19 +80,8 @@
                             </div> <!-- end card -->
                         </div> <!-- end col-->
 
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card">
-                                <div class="card-body" style="background-color:rgb(191, 155, 46)">
-                                    <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-white">
-                                            <i class="mdi mdi-account-supervisor"></i>
-                                            Quản lý lớp
-                                        </a>
-                                    </h3>
-                                </div> <!-- end card-body -->
-                            </div> <!-- end card -->
-                        </div> <!-- end col-->
-
+                        <div class="col-lg-2">
+                        </div>
                     </div>
 
                     <div class="row">
@@ -99,7 +91,7 @@
                             <div class="card">
                                 <div class="card-body" style="background-color:purple">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-white">
+                                        <a href="{{ route('admin.modules.index') }}" class="stretched-link text-white">
                                             <i class="mdi mdi-calendar-account"></i>
                                             Phân công lịch dạy
                                         </a>
