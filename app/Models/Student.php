@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\StudentStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Model
@@ -41,7 +41,12 @@ class Student extends Model
 
     public function getStatusNameAttribute(): string
     {
-        return ($this->status === 1) ? 'Đi học' : 'Bảo lưu';
+        if ($this->status === StudentStatusEnum::DROP_OUT)
+            return 'Đã nghỉ';
+        else if ($this->status === StudentStatusEnum::ACTIVE)
+            return 'Đi học';
+        else if ($this->status === StudentStatusEnum::RESERVED)
+            return 'Bảo lưu';
     }
 
     public function getAgeAttribute()

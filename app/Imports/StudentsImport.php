@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\UserRoleEnum;
 use App\Models\_Class;
 use App\Models\Course;
 use App\Models\Faculty;
@@ -59,10 +60,10 @@ class StudentsImport implements ToArray, WithHeadingRow
                             'birthday' => $student['ngay_sinh'],
                             'email' => $student['email'],
                             'phone_number' => $student['sdt'],
-                            'role' => 2,
+                            'role' => UserRoleEnum::STUDENT,
                         ]);
 
-                        $new_student = Student::create([
+                        Student::create([
                             'student_code' => $this->generateStudentCode($courseId, $majorId, $i),
                             'name' => $student['ten'],
                             'birthday' => $student['ngay_sinh'],

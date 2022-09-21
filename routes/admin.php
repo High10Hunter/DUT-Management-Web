@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UserController;
@@ -18,9 +19,8 @@ Route::group([
     Route::get('/', [UserController::class, 'index'])->name('index');
     Route::get('/create', [UserController::class, 'createEAOStaff'])->name('create_eao_staff');
     Route::post('/create', [UserController::class, 'storeEAOStaff'])->name('store_eao_staff');
-    Route::get('/edit/{user}', [UserController::class, 'edit'])->name('edit');
-    Route::put('/edit/{user}', [UserController::class, 'update'])->name('update');
     Route::post('/import_csv', [UserController::class, 'importCSV'])->name('import_csv');
+    Route::post('/reset/{user}', [UserController::class, 'resetAccount'])->name('reset');
     Route::post('/destroy/{user}', [UserController::class, 'destroy'])->name('destroy');
 });
 
@@ -64,3 +64,13 @@ Route::group([
     Route::put('/edit/{student}', [StudentController::class, 'update'])->name('update');
     Route::post('/destroy/{student}', [StudentController::class, 'destroy'])->name('destroy');
 });
+
+Route::group(
+    [
+        'prefix' => 'modules',
+        'as' => 'modules.',
+    ],
+    static function () {
+        Route::get('/', [ModuleController::class, 'index'])->name('index');
+    }
+);

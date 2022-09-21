@@ -8,6 +8,7 @@ use App\Imports\StudentsImport;
 use App\Models\_Class;
 use App\Models\Course;
 use App\Models\Major;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -111,7 +112,8 @@ class StudentController extends Controller
         }
 
         if (!is_null($search)) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('student_code', $search);
         }
 
         $data = $query->paginate(10)
@@ -187,9 +189,19 @@ class StudentController extends Controller
 
         $this->model
             ->where('id', $studentId)
-            ->update(
-                $updateArr
-            );
+            ->update($updateArr);
+
+        $userId = $this->model->where('id', $studentId)->value('user_id');
+
+        User::query()
+            ->where('id', $userId)
+            ->update([
+                'name' => $request->name,
+                'gender' => $request->gender,
+                'birthday' => $request->birthday,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+            ]);
 
         session()->put('success', 'Cập nhật thông tin thành công');
         return redirect()->route("admin.$this->table.index");
