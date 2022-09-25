@@ -24,6 +24,13 @@ if (!function_exists('isEAOStaff')) {
     }
 }
 
+if (!function_exists('isLecturer')) {
+    function isLecturer(): bool
+    {
+        return (auth()->user()->role === UserRoleEnum::LECTURER);
+    }
+}
+
 if (!function_exists('moveAvatarToUserIDFolderWhenCreate')) {
     function moveAvatarToUserIDFolderWhenCreate($userId, $storagePathPrefix, $tempPath, $newPathPrefixToStore): string
     {
