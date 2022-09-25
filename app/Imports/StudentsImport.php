@@ -63,7 +63,7 @@ class StudentsImport implements ToArray, WithHeadingRow
                             'role' => UserRoleEnum::STUDENT,
                         ]);
 
-                        Student::create([
+                        Student::insert([
                             'student_code' => $this->generateStudentCode($courseId, $majorId, $i),
                             'name' => $student['ten'],
                             'birthday' => $student['ngay_sinh'],
