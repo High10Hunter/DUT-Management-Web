@@ -55,7 +55,10 @@
                                     <th>Môn học</th>
                                     <th>Giảng viên</th>
                                     <th>Lịch học</th>
-                                    <th>tiết bắt đầu - tiết kết thúc</th>
+                                    <th>Tiết bắt đầu - Tiết kết thúc</th>
+                                    <th>Thời gian học</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chỉnh sửa</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,8 +67,30 @@
                                         <td>{{ $each->name }}</td>
                                         <td>{{ $each->subject->name }}</td>
                                         <td>{{ $each->lecturer->name }}</td>
-                                        <td>{{ $each->schedule }}</td>
+                                        <td>Thứ: {{ $each->schedule }}</td>
                                         <td>{{ $each->slot_range }}</td>
+                                        <td>{{ $each->study_time }}</td>
+                                        <td>
+                                            @if ($each->status === 1)
+                                                <h4>
+                                                    <span class="badge badge-success">
+                                                        {{ $each->status_name }}
+                                                    </span>
+                                                </h4>
+                                            @else
+                                                <h4>
+                                                    <span class="badge badge-danger">
+                                                        {{ $each->status_name }}
+                                                    </span>
+                                                </h4>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.modules.edit', ['module' => $each->id]) }}">
+                                                <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
+                                                </button>
+                                            </a>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -131,7 +156,7 @@
 
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route('admin.majors.import_csv') }}',
+                        url: '{{ route('admin.modules.import_csv') }}',
                         cache: false,
                         // async: false,
                         data: formData,

@@ -72,5 +72,8 @@ Route::group(
     ],
     static function () {
         Route::get('/', [ModuleController::class, 'index'])->name('index');
+        Route::post('/import_csv', [ModuleController::class, 'importCSV'])->name('import_csv');
+        Route::get('/edit/{module}', [ModuleController::class, 'edit'])->name('edit');
+        Route::put('/edit/{module}', [ModuleController::class, 'update'])->name('update');
     }
 );
