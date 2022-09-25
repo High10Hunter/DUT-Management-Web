@@ -6,6 +6,8 @@ use App\Enums\StudentStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Model
@@ -57,5 +59,15 @@ class Student extends Model
     public function class(): BelongsTo
     {
         return $this->belongsTo(_Class::class, 'class_id');
+    }
+
+    public function modules(): BelongsToMany
+    {
+        return $this->belongsToMany(Module::class, 'module_student');
+    }
+
+    public function attendance(): HasOne
+    {
+        return $this->hasOne(PeriodAttendanceDetail::class);
     }
 }

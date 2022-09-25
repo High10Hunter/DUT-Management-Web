@@ -297,7 +297,7 @@
                             text: 'Không thể tải file lên',
                             showHideTransition: 'fade',
                             icon: 'error'
-                        })
+                        });
                     }
                 });
             });
