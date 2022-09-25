@@ -3,84 +3,110 @@
 namespace App\Http\Controllers;
 
 use App\Models\Period;
-use App\Http\Requests\StorePeriodRequest;
-use App\Http\Requests\UpdatePeriodRequest;
+use App\Models\Module;
+use App\Models\PeriodAttendanceDetail;
+use App\Models\Student;
+use Illuminate\Http\Request;
 
 class PeriodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public object $model;
+    public string $table;
+
+    public function __construct()
+    {
+        $model = Period::query();
+        $table = (new Period())->getTable();
+    }
+
     public function index()
     {
-        //
+        $lecturer_id = auth()->user()->id;
+        $modules = Module::query()
+            ->with(['subject:id,name'])
+            ->where('lecturer_id', $lecturer_id)
+            ->get();
+
+        return view('lecturers.periods.index', [
+            'modules' => $modules,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function form(Request $request)
     {
-        //
+        $moduleId = $request->get('module_id');
+        $lecturerId = auth()->user()->id;
+        $modules = Module::query()
+            ->with(['subject:id,name'])
+            ->where('lecturer_id', $lecturerId)
+            ->get();
+
+        $attendance = Period::query()
+            ->where([
+                'module_id' => $moduleId,
+                'date' => date('Y-m-d'),
+                'lecturer_id' => $lecturerId
+            ])
+            ->first();
+
+        $students = Student::query()
+            ->whereRelation('modules', 'module_id', $moduleId)
+            ->with([
+                'attendance' => function ($query) use ($attendance) {
+                    $query->where('period_id', optional($attendance)->id);
+                }
+            ])
+            ->get();
+
+        return view("lecturers.periods.index", [
+            'modules' => $modules,
+            'moduleId' => $moduleId,
+            'students' => $students,
+            'attendance' => $attendance,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StorePeriodRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StorePeriodRequest $request)
+    public function attendance(Request $request)
     {
-        //
-    }
+        $moduleId = $request->get('module_id');
+        $lecturerId = auth()->user()->id;
+        $statusArr = $request->get('status');
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Period  $period
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Period $period)
-    {
-        //
-    }
+        if (!is_null($statusArr)) {
+            $period = Period::query()
+                ->where([
+                    'module_id' => (int)$moduleId,
+                    'date' => date('Y-m-d'),
+                    'lecturer_id' => $lecturerId,
+                ])
+                ->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Period  $period
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Period $period)
-    {
-        //
-    }
+            if (is_null($period)) {
+                $period = Period::create([
+                    'module_id' => (int)$moduleId,
+                    'date' => date('Y-m-d'),
+                    'lecturer_id' => $lecturerId,
+                ]);
+            }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdatePeriodRequest  $request
-     * @param  \App\Models\Period  $period
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdatePeriodRequest $request, Period $period)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Period  $period
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Period $period)
-    {
-        //
+            foreach ($statusArr as $studentId => $status) {
+                PeriodAttendanceDetail::upsert(
+                    [
+                        'period_id' => $period->id,
+                        'student_id' => $studentId,
+                        'status' => (int)$status,
+                    ],
+                    [
+                        'period_id',
+                        'student_id',
+                    ],
+                    [
+                        'status',
+                    ]
+                );
+            }
+        } else {
+            dd("Không thể điểm danh, vui lòng chọn trạng thái đi học của sinh viên !");
+        }
     }
 }

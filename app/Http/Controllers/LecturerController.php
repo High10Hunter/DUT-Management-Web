@@ -5,17 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Lecturer;
 use App\Http\Requests\StoreLecturerRequest;
 use App\Http\Requests\UpdateLecturerRequest;
+use App\Models\Module;
+use App\Models\Student;
+use Illuminate\Http\Request;
 
 class LecturerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    use ResponseTrait;
+    private object $model;
+    private string $table;
+
+    public function __construct()
+    {
+        $this->model = Lecturer::query();
+        $this->table = (new Lecturer())->getTable();
+    }
+
     public function index()
     {
-        //
     }
 
     /**
