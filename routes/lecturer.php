@@ -10,6 +10,6 @@ Route::group([
     'prefix' => 'periods',
     'as' => 'periods.',
 ], static function () {
-    Route::get('/', [PeriodController::class, 'form'])->name('form');
+    Route::post('/', [PeriodController::class, 'form'])->name('form');
     Route::post('/attendance', [PeriodController::class, 'attendance'])->name('attendance');
 });

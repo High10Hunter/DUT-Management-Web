@@ -13,18 +13,21 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
     use ResponseTrait;
-    public object $model;
-    public string $table;
+    private string $title = "Quản lý sinh viên";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
         $this->model = Student::query();
         $this->table = (new Student())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)

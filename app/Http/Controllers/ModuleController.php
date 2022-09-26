@@ -9,18 +9,21 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ModuleController extends Controller
 {
     use ResponseTrait;
-    public object $model;
-    public string $table;
+    private string $title = "Phân công lịch dạy";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
         $this->model = Module::query();
         $this->table = (new Module())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)
@@ -40,6 +43,7 @@ class ModuleController extends Controller
 
         $data = $query->paginate(10)
             ->appends($request->all());
+
 
         return view("admin.$this->table.index", [
             'data' => $data,
@@ -69,17 +73,15 @@ class ModuleController extends Controller
         ]);
 
         $schedule = $module->schedule;
-        $schedule = explode(',', $schedule);
-
         $beginDate = $module->begin_date;
-        $endDate = $module->end_date;
+        $lessons = $module->lessons;
 
         return view("admin.$this->table.edit", [
             'module' => $module,
             'lecturers' => $lecturers,
             'schedule' => $schedule,
             'beginDate' => $beginDate,
-            'endDate' => $endDate,
+            'lessons' => $lessons,
         ]);
     }
 
@@ -90,10 +92,8 @@ class ModuleController extends Controller
         $endSlot = $request->input('end_slot');
         $schedule = $request->input('schedule');
         $beginDate = $request->input('begin_date');
-        $endDate = $request->input('end_date');
+        $lessons = $request->input('lessons');
 
-
-        $schedule = implode(',', $schedule);
 
         $this->model->where('id', $moduleId)
             ->update([
@@ -102,7 +102,7 @@ class ModuleController extends Controller
                 'start_slot' => $startSlot,
                 'end_slot' =>   $endSlot,
                 'begin_date' => $beginDate,
-                'end_date' =>   $endDate,
+                'lessons' => (int)$lessons,
             ]);
 
         session()->put('success', 'Cập nhật học phần thành công');

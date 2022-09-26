@@ -15,11 +15,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
     use ResponseTrait;
+    private string $title = "Quản lý người dùng";
     private object $model;
     private string $table;
 
@@ -27,6 +29,7 @@ class UserController extends Controller
     {
         $this->model = User::query();
         $this->table = (new User())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)

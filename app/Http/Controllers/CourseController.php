@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Course\StoreCourseRequest;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class CourseController extends Controller
 {
-    public object $model;
-    public string $table;
+    private string $title = "Quản lý khoá";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
         $this->model = Course::query();
         $this->table = (new Course())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)

@@ -20,13 +20,16 @@
             <div class="row">
                 <div class="col-lg-4">
                     <p class="text-muted font-14">Chọn lớp học phần</p>
-                    <form action="{{ route('lecturer.periods.form') }}" id="form-filter" class="form-inline">
+                    <form action="{{ route('lecturer.periods.form') }}" id="form-filter" method="POST" class="form-inline">
                         @csrf
                         <select name="module_id" class="form-control select-filter select2" data-toggle="select2">
-                            <option value=""></option>
+                            <option value="" disabled selected></option>
                             @foreach ($modules as $module)
                                 <option value="{{ $module->id }}" @if (isset($moduleId) && $moduleId == $module->id) selected @endif>
                                     {{ $module->name . ' - ' . $module->subject->name }}
+                                    @if (in_array($currentWeekday + 1, $module->schedule))
+                                        (Học phần trong ngày)
+                                    @endif
                                 </option>
                             @endforeach
                         </select>

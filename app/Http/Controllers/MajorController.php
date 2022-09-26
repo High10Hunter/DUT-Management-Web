@@ -10,19 +10,22 @@ use App\Models\Faculty;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 
 class MajorController extends Controller
 {
     use ResponseTrait;
-    public object $model;
-    public string $table;
+    private string $title = "Quản lý chuyên ngành";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
         $this->model = Major::query();
         $this->table = (new Major())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)

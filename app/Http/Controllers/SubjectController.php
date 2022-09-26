@@ -12,18 +12,21 @@ use App\Models\Faculty;
 use App\Models\Major;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SubjectController extends Controller
 {
     use ResponseTrait;
-    public object $model;
-    public string $table;
+    private string $title = "Quản lý môn";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
         $this->model = Subject::query();
         $this->table = (new Subject())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)
