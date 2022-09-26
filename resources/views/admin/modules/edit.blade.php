@@ -40,6 +40,10 @@
                                         @endfor
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="faculty-select">Số buổi học</label>
+                                    <input type="number" name="lessons" class="form-control" value="{{ $lessons }}">
+                                </div>
                             </div>
 
                             <div class="col-lg-6">
@@ -70,11 +74,6 @@
                                         <label>Thời gian bắt đầu</label>
                                         <input class="form-control" id="example-date" type="date" name="begin_date"
                                             value="{{ $beginDate }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Thời gian kết thúc</label>
-                                        <input class="form-control" id="example-date" type="date" name="end_date"
-                                            value="{{ $endDate }}">
                                     </div>
                                 </div>
                             </div>

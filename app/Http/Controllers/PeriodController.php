@@ -6,17 +6,21 @@ use App\Models\Period;
 use App\Models\Module;
 use App\Models\PeriodAttendanceDetail;
 use App\Models\Student;
+use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeriodController extends Controller
 {
-    public object $model;
-    public string $table;
+    private string $title = "Điểm danh sinh viên";
+    private object $model;
+    private string $table;
 
     public function __construct()
     {
-        $model = Period::query();
-        $table = (new Period())->getTable();
+        $this->model = Period::query();
+        $this->table = (new Period())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index()
@@ -27,8 +31,12 @@ class PeriodController extends Controller
             ->where('lecturer_id', $lecturer_id)
             ->get();
 
-        return view('lecturers.periods.index', [
+        date_default_timezone_set("Asia/Bangkok");
+        $currentWeekday = now()->isoFormat('E');
+
+        return view("lecturers.$this->table.index", [
             'modules' => $modules,
+            'currentWeekday' => $currentWeekday,
         ]);
     }
 
@@ -41,13 +49,16 @@ class PeriodController extends Controller
             ->where('lecturer_id', $lecturerId)
             ->get();
 
-        $attendance = Period::query()
+        $attendance = $this->model
             ->where([
                 'module_id' => $moduleId,
                 'date' => date('Y-m-d'),
                 'lecturer_id' => $lecturerId
             ])
             ->first();
+
+        date_default_timezone_set("Asia/Bangkok");
+        $currentWeekday = now()->isoFormat('E');
 
         $students = Student::query()
             ->whereRelation('modules', 'module_id', $moduleId)
@@ -58,11 +69,12 @@ class PeriodController extends Controller
             ])
             ->get();
 
-        return view("lecturers.periods.index", [
+        return view("lecturers.$this->table.index", [
             'modules' => $modules,
             'moduleId' => $moduleId,
             'students' => $students,
             'attendance' => $attendance,
+            'currentWeekday' => $currentWeekday,
         ]);
     }
 

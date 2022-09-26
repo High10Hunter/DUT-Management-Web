@@ -56,7 +56,8 @@
                                     <th>Giảng viên</th>
                                     <th>Lịch học</th>
                                     <th>Tiết bắt đầu - Tiết kết thúc</th>
-                                    <th>Thời gian học</th>
+                                    <th>Thời gian bắt đầu bắt đầu</th>
+                                    <th>Số buổi học</th>
                                     <th>Trạng thái</th>
                                     <th>Chỉnh sửa</th>
                                 </tr>
@@ -67,9 +68,16 @@
                                         <td>{{ $each->name }}</td>
                                         <td>{{ $each->subject->name }}</td>
                                         <td>{{ $each->lecturer->name }}</td>
-                                        <td>Thứ: {{ $each->schedule }}</td>
+                                        <td>Thứ:
+                                            @if (count($each->schedule) != 1)
+                                                {{ implode($each->schedule, ',') }}
+                                            @else
+                                                {{ $each->schedule[0] }}
+                                            @endif
+                                        </td>
                                         <td>{{ $each->slot_range }}</td>
                                         <td>{{ $each->study_time }}</td>
+                                        <td>{{ $each->lessons }}</td>
                                         <td>
                                             @if ($each->status === 1)
                                                 <h4>

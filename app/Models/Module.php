@@ -24,6 +24,10 @@ class Module extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'schedule' => 'array',
+    ];
+
     public function getSlotRangeAttribute()
     {
         return $this->start_slot . ' - ' . $this->end_slot;
@@ -32,9 +36,8 @@ class Module extends Model
     public function getStudyTimeAttribute()
     {
         $beginDate = Carbon::parse($this->begin_date)->format('d/m');
-        $endDate = Carbon::parse($this->end_date)->format('d/m');
 
-        return $beginDate . ' - ' . $endDate;
+        return $beginDate;
     }
 
     public function getStatusNameAttribute()
