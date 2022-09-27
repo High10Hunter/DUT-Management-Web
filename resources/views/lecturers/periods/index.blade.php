@@ -20,8 +20,7 @@
             <div class="row">
                 <div class="col-lg-4">
                     <p class="text-muted font-14">Chọn lớp học phần</p>
-                    <form action="{{ route('lecturer.periods.form') }}" id="form-filter" method="POST" class="form-inline">
-                        @csrf
+                    <form action="{{ route('lecturer.periods.form') }}" id="form-filter" class="form-inline">
                         <select name="module_id" class="form-control select-filter select2" data-toggle="select2">
                             <option value="" disabled selected></option>
                             @foreach ($modules as $module)
@@ -40,6 +39,22 @@
     </div>
     <br>
     @isset($students)
+        <form action="{{ route('lecturer.periods.form') }}">
+            <a href="{{ route('lecturer.periods.form', ['moduleId' => $moduleId]) }}">
+                <i class="mdi mdi-reload"> Tải lại</i>
+            </a>
+            <div class="form-group">
+                <div class="input-group w-25">
+                    <input type="hidden" name="module_id" value="{{ $moduleId }}">
+                    <input name="q" type="text" class="form-control" placeholder="Tìm kiếm sinh viên..."
+                        value="{{ $search }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-dark">Tìm</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
         @if (isset($attendance))
             <h3 class="text-center">
                 <span id="class-status" class="badge badge-success">Đã điểm danh</span>
@@ -49,14 +64,13 @@
                 <span id="class-status" class="badge badge-danger">Chưa điểm danh</span>
             </h3>
         @endif
-        <input type="hidden" name="module_id" value="{{ $moduleId }}">
+
         <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar">
             <table id="module-students-list" class="table table-hover table-centered mb-0">
                 <thead class="thead-light">
                     <tr class="text-center">
                         <th>Mã SV</th>
                         <th>Tên</th>
-                        <th>Giới tính</th>
                         <th>Lớp</th>
                         <th>Tình trạng đi học</th>
                     </tr>
@@ -66,7 +80,6 @@
                         <tr class="text-center">
                             <td>{{ $student->student_code }}</td>
                             <td>{{ $student->name }}</td>
-                            <td>{{ $student->gender_name }}</td>
                             <td>
                                 @if (optional($student->class)->name != null)
                                     {{ optional($student->class)->name }}
@@ -77,18 +90,18 @@
                             <td>
                                 <div class="status-check mt-2">
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input value="1" type="radio" id="{{ $student->id . 'available' }}"
+                                        <input value="1" type="radio" id="{{ $student->id . 'attended' }}"
                                             name="status{{ $student->id }}" class="custom-control-input"
                                             @if (optional($student->attendance)->status === 1) checked @endif>
-                                        <label class="custom-control-label" for="{{ $student->id . 'available' }}">
+                                        <label class="custom-control-label" for="{{ $student->id . 'attended' }}">
                                             Đi học
                                         </label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input value="0" type="radio" id="{{ $student->id . 'off' }}"
+                                        <input value="0" type="radio" id="{{ $student->id . 'not_attended' }}"
                                             name="status{{ $student->id }}" class="custom-control-input"
                                             @if (optional($student->attendance)->status === 0) checked @endif>
-                                        <label class="custom-control-label" for="{{ $student->id . 'off' }}">
+                                        <label class="custom-control-label" for="{{ $student->id . 'not_attended' }}">
                                             Vắng
                                         </label>
                                     </div>
@@ -118,6 +131,44 @@
             <button type="button" id="attendance-btn" class="btn btn-info btn-rounded float-right mr-5">
                 <i class="mdi mdi-account-check"></i> Điểm danh
             </button>
+            <div id="count-status" class="mt-2">
+                <strong>
+                    <div class="row">
+                        <p class="col-3 text-black">
+                            Tổng số sinh viên :
+                            <span class="count-students">
+                                @isset($attendance)
+                                    {{ $countStatus['attended'] + $countStatus['notAttended'] + $countStatus['excused'] + $countStatus['late'] }}
+                                @endisset
+                            </span>
+                        </p>
+                        <p class="col-3 text-success">
+                            Đi học :
+                            <span class="count-attended">
+                                @isset($attendance)
+                                    {{ $countStatus['attended'] }}
+                                @endisset
+                            </span>
+                        </p>
+                        <p class="col-3 text-danger">
+                            Vắng + có phép :
+                            <span class="count-not-attended">
+                                @isset($attendance)
+                                    {{ $countStatus['notAttended'] + $countStatus['excused'] }}
+                                @endisset
+                            </span>
+                        </p>
+                        <p class="col-3 text-warning">
+                            Đi muộn :
+                            <span class="count-late">
+                                @isset($attendance)
+                                    {{ $countStatus['late'] }}
+                                @endisset
+                            </span>
+                        </p>
+                    </div>
+                </strong>
+            </div>
         </div>
     @endisset
 @endsection
@@ -148,6 +199,28 @@
 
                 let moduleId = $("input[name='module_id']").val();
 
+                let countStatus = {
+                    'attended': 0,
+                    'notAttended': 0,
+                    'excused': 0,
+                    'late': 0,
+                };
+
+                $.each(statusArr, function(index, val) {
+                    if (val == 1)
+                        countStatus['attended']++;
+                    else if (val == 0)
+                        countStatus['notAttended']++;
+                    else if (val == 2)
+                        countStatus['excused']++;
+                    else
+                        countStatus['late']++;
+                });
+
+                let totalStudent = countStatus['attended'] + countStatus[
+                    'notAttended'] + countStatus['excused'] + countStatus['late'];
+                let notAttended = countStatus['notAttended'] + countStatus['excused'];
+
                 $(this).prop('disabled', true);
                 $(this).html("<span role='btn-status'></span>Đang cập nhật");
                 $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
@@ -174,6 +247,11 @@
 
                         $("#class-status").html('Đã điểm danh');
                         $("#class-status").attr('class', 'badge badge-success');
+
+                        $(".count-students").text(totalStudent);
+                        $(".count-attended").text(countStatus['attended']);
+                        $(".count-not-attended").text(notAttended);
+                        $(".count-late").text(countStatus['late']);
                     },
                     error: function(response) {
                         $.toast({

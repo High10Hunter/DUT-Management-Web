@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PeriodAttendanceStatusEnum;
 use App\Models\Period;
 use App\Models\Module;
 use App\Models\PeriodAttendanceDetail;
 use App\Models\Student;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PeriodController extends Controller
 {
@@ -40,10 +40,12 @@ class PeriodController extends Controller
         ]);
     }
 
-    public function form(Request $request)
+    public function form(Request $request, $moduleId = null)
     {
-        $moduleId = $request->get('module_id');
+        $moduleId ??= $request->get('module_id');
         $lecturerId = auth()->user()->id;
+        $search = $request->get('q');
+
         $modules = Module::query()
             ->with(['subject:id,name'])
             ->where('lecturer_id', $lecturerId)
@@ -57,24 +59,65 @@ class PeriodController extends Controller
             ])
             ->first();
 
+        $countStatus = [];
+        if (!is_null($attendance)) {
+            $countStatus['attended'] = PeriodAttendanceDetail::query()
+                ->where([
+                    'period_id' => $attendance->id,
+                    'status' => PeriodAttendanceStatusEnum::ATTENDED,
+                ])
+                ->count();
+
+            $countStatus['notAttended'] = PeriodAttendanceDetail::query()
+                ->where([
+                    'period_id' => $attendance->id,
+                    'status' => PeriodAttendanceStatusEnum::NOT_ATTENDED,
+                ])
+                ->count();
+
+            $countStatus['excused'] = PeriodAttendanceDetail::query()
+                ->where([
+                    'period_id' => $attendance->id,
+                    'status' => PeriodAttendanceStatusEnum::EXCUSED,
+                ])
+                ->count();
+
+            $countStatus['late'] = PeriodAttendanceDetail::query()
+                ->where([
+                    'period_id' => $attendance->id,
+                    'status' => PeriodAttendanceStatusEnum::LATE,
+                ])
+                ->count();
+        }
+
         date_default_timezone_set("Asia/Bangkok");
         $currentWeekday = now()->isoFormat('E');
 
-        $students = Student::query()
+        $students = Student::query()->clone()
             ->whereRelation('modules', 'module_id', $moduleId)
             ->with([
                 'attendance' => function ($query) use ($attendance) {
                     $query->where('period_id', optional($attendance)->id);
-                }
-            ])
-            ->get();
+                },
+                'class:id,name',
+            ]);
+        // ->get();
+
+        if (!is_null($search)) {
+            $students->where('name', 'like', '%' . $search . '%')
+                ->orWhere('student_code', $search);
+        }
+
+        $students = $students->get();
 
         return view("lecturers.$this->table.index", [
             'modules' => $modules,
+            'search' => $search,
             'moduleId' => $moduleId,
             'students' => $students,
             'attendance' => $attendance,
             'currentWeekday' => $currentWeekday,
+            'countStatus' => $countStatus,
         ]);
     }
 
