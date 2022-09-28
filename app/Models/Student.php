@@ -70,4 +70,9 @@ class Student extends Model
     {
         return $this->hasOne(PeriodAttendanceDetail::class);
     }
+
+    public function attendances(): BelongsToMany
+    {
+        return $this->belongsToMany(Period::class, 'period_attendance_details');
+    }
 }

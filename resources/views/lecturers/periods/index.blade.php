@@ -33,6 +33,13 @@
                             @endforeach
                         </select>
                     </form>
+                    @isset($moduleId)
+                        <div class="row ml-2 mt-2 lessons-count" data-module-lessons="{{ $moduleLessons }}">
+                            Số buổi đã dạy : <div id="teached-lessons" class="text-black col-lg-2">{{ $teachedLessons }}</div>
+                            Số buổi còn lại : <div id="remaining-lessons" class="text-black col-lg-2">
+                                {{ $moduleLessons - $teachedLessons }}</div>
+                        </div>
+                    @endisset
                 </div>
             </div>
         </div>
@@ -65,12 +72,13 @@
             </h3>
         @endif
 
+
         <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar">
             <table id="module-students-list" class="table table-hover table-centered mb-0">
                 <thead class="thead-light">
                     <tr class="text-center">
                         <th>Mã SV</th>
-                        <th>Tên</th>
+                        <th>Sinh viên / Số buối nghỉ / Phép</th>
                         <th>Lớp</th>
                         <th>Tình trạng đi học</th>
                     </tr>
@@ -78,8 +86,36 @@
                 <tbody>
                     @foreach ($students as $student)
                         <tr class="text-center">
-                            <td>{{ $student->student_code }}</td>
-                            <td>{{ $student->name }}</td>
+                            <td>
+                                {{ $student->student_code }}
+                            </td>
+                            <td>
+                                <span id="student-overall-status[{{ $student->id }}]"
+                                    class=" 
+                                    @if (isset($attendance) && $student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.5) text-danger font-weight-bold
+                                    @elseif (isset($attendance) && $student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.3) text-warning font-weight-bold
+                                    @else   
+                                        text-success font-weight-bold @endif">
+                                    {{ $student->name }}
+                                </span>
+                                /
+                                <span style="color:rgb(187, 26, 26)">
+                                    (<span
+                                        id="total-not-attended[{{ $student->id }}]">{{ $student->not_attended_count + $student->late_count * 0.5 }}</span>
+                                    /
+                                    <span class="total-lessons"
+                                        data-total-lessons="{{ $teachedLessons }}">{{ $teachedLessons }}</span>)
+                                </span>
+                                /
+                                <span id="total-excused[{{ $student->id }}]" class="text-primary"
+                                    data-max-excused="{{ $maxExcused }}">
+                                    @if ($student->excused_count <= $maxExcused)
+                                        {{ $student->excused_count }}
+                                    @else
+                                        {{ $maxExcused }}
+                                    @endif
+                                </span>
+                            </td>
                             <td>
                                 @if (optional($student->class)->name != null)
                                     {{ optional($student->class)->name }}
@@ -91,31 +127,41 @@
                                 <div class="status-check mt-2">
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input value="1" type="radio" id="{{ $student->id . 'attended' }}"
-                                            name="status{{ $student->id }}" class="custom-control-input"
-                                            @if (optional($student->attendance)->status === 1) checked @endif>
+                                            name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
+                                            class="custom-control-input" @if (optional($student->attendance)->status === 1) checked @endif>
                                         <label class="custom-control-label" for="{{ $student->id . 'attended' }}">
                                             Đi học
                                         </label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input value="0" type="radio" id="{{ $student->id . 'not_attended' }}"
-                                            name="status{{ $student->id }}" class="custom-control-input"
-                                            @if (optional($student->attendance)->status === 0) checked @endif>
+                                            name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
+                                            class="custom-control-input" @if (optional($student->attendance)->status === 0) checked @endif>
                                         <label class="custom-control-label" for="{{ $student->id . 'not_attended' }}">
                                             Vắng
                                         </label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
-                                            name="status{{ $student->id }}" class="custom-control-input"
-                                            @if (optional($student->attendance)->status === 2) checked @endif>
-                                        <label class="custom-control-label" for="{{ $student->id . 'excuse' }}">
-                                            Có phép
-                                        </label>
+                                        @if ($student->excused_count <= $maxExcused)
+                                            <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
+                                                name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
+                                                class="custom-control-input" @if (optional($student->attendance)->status === 2) checked @endif>
+                                            <label class="custom-control-label" for="{{ $student->id . 'excuse' }}">
+                                                Có phép
+                                            </label>
+                                        @else
+                                            <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
+                                                name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
+                                                class="custom-control-input" @if (optional($student->attendance)->status === 2) checked @endif>
+                                            <label class="text-danger" for="{{ $student->id . 'excuse' }}">
+                                                Hết nghỉ phép
+                                            </label>
+                                        @endif
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input value="3" type="radio" id="{{ $student->id . 'late' }}"
-                                            name="status{{ $student->id }}" class="custom-control-input"
+                                            name="status[{{ $student->id }}]"
+                                            data-student-id="{{ $student->id }}"class="custom-control-input"
                                             @if (optional($student->attendance)->status === 3) checked @endif>
                                         <label class="custom-control-label" for="{{ $student->id . 'late' }}">
                                             Đi muộn
@@ -186,19 +232,19 @@
             $(".select-filter").change(function(e) {
                 $("#form-filter").submit();
             });
+
             //check attendance
             $("#attendance-btn").click(function(e) {
                 let statusArr = {};
                 $('input[type="radio"]:checked').each(function() {
-                    let name = $(this).attr('name');
-                    let studentId = name.slice(6); //status
-
+                    let studentId = $(this).data('student-id');
                     let status = $(this).val();
-                    statusArr[studentId] = status;
+                    statusArr[studentId] = parseInt(status);
                 });
 
                 let moduleId = $("input[name='module_id']").val();
 
+                //update status count after check attendance
                 let countStatus = {
                     'attended': 0,
                     'notAttended': 0,
@@ -235,28 +281,91 @@
                     success: function(response) {
                         $.toast({
                             heading: 'Thành công',
-                            text: 'Đã cập nhật điểm danh',
+                            text: response.message,
                             showHideTransition: 'slide',
                             position: 'bottom-left',
                             icon: 'success'
                         });
+
+                        //display spinning waiting button
                         $("#attendance-btn").prop('disabled', false);
                         $("#attendance-btn").html(
                             '<i class="mdi mdi-account-check"></i> Điểm danh');
                         $("span[role='btn-status']").remove();
 
+                        //update checking attendance status of a module
                         $("#class-status").html('Đã điểm danh');
                         $("#class-status").attr('class', 'badge badge-success');
 
+                        //update total status count after checking attendance
                         $(".count-students").text(totalStudent);
                         $(".count-attended").text(countStatus['attended']);
                         $(".count-not-attended").text(notAttended);
                         $(".count-late").text(countStatus['late']);
+
+                        //update total status count of each student
+                        let totalNotAttendedArr = response.data[0];
+                        $.each(totalNotAttendedArr, function(studentId, numberOfNotAttended) {
+                            $("span[id='total-not-attended[" + studentId + "]']").text(
+                                numberOfNotAttended);
+                        });
+
+                        let totalExcusedArr = response.data[1];
+                        $.each(totalExcusedArr, function(studentId, numberOfExcused) {
+                            if (numberOfExcused > $("span[id='total-excused[" +
+                                    studentId + "]']").data('max-excused')) {
+                                // disable status excused
+                                $("label[for='" + studentId + "excuse']").text(
+                                    'Hết nghỉ phép');
+                                $("label[for='" + studentId + "excuse']").attr('class',
+                                    'text-danger');
+                            } else {
+                                $("span[id='total-excused[" + studentId + "]']").text(
+                                    numberOfExcused);
+                                $("label[for='" + studentId + "excuse']").text(
+                                    'Có phép');
+                                $("label[for='" + studentId + "excuse']").removeClass(
+                                    'text-danger');
+                                $("label[for='" + studentId + "excuse']").attr('class',
+                                    'custom-control-label');
+                                $("input[id='" + studentId + "excuse']").attr(
+                                    'enabled',
+                                    true);
+                            }
+                        });
+
+                        //update total lessons
+                        let teachedLessons = response.data[2];
+                        let moduleLessons = $(".lessons-count").data('module-lessons');
+                        let remainingLessons = moduleLessons - teachedLessons;
+
+                        $(".total-lessons").attr('data-total-lessons', teachedLessons);
+                        $(".total-lessons").text(teachedLessons);
+                        $("#teached-lessons").text(teachedLessons);
+                        $("#remaining-lessons").text(remainingLessons);
+
+                        //update color status of each student
+                        let totalLessons = $(".total-lessons").data('total-lessons');
+                        $.each(totalNotAttendedArr, function(studentId, numberOfNotAttended) {
+                            if (numberOfNotAttended > totalLessons * 0.5) {
+                                $("span[id='student-overall-status[" + studentId +
+                                    "]']").attr('class',
+                                    'text-danger font-weight-bold');
+                            } else if (numberOfNotAttended > totalLessons * 0.3) {
+                                $("span[id='student-overall-status[" + studentId +
+                                    "]']").attr('class',
+                                    'text-warning font-weight-bold');
+                            } else {
+                                $("span[id='student-overall-status[" + studentId +
+                                    "]']").attr('class',
+                                    'text-success font-weight-bold');
+                            }
+                        });
                     },
                     error: function(response) {
                         $.toast({
                             heading: 'Thất bại',
-                            text: 'Không thể điểm danh, vui lòng chọn trạng thái đi học của sinh viên !',
+                            text: response.responseJSON.message,
                             showHideTransition: 'fade',
                             position: 'bottom-left',
                             icon: 'error'
