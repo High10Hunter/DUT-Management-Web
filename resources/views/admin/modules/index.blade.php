@@ -129,6 +129,10 @@
                         <input type="file" name="csv" id="csv"
                             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                     </div>
+                    <div class="form-group">
+                        <a href="{{ route('admin.modules.export_sample_csv') }}">
+                            <em>Tải file CSV mẫu</em></a>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="btn-import-csv">Tải lên</button>
@@ -175,9 +179,9 @@
                         success: function(response) {
                             $.toast({
                                 heading: 'Thành công',
-                                text: 'File đã được tải lên',
+                                text: response.message,
                                 showHideTransition: 'slide',
-                                position: 'bottom-right',
+                                position: 'bottom-left',
                                 icon: 'success'
                             });
                             $("#import-csv-modal").modal('hide');
@@ -188,7 +192,7 @@
                             $('#btn-import-csv').html('Tải lên');
                             $.toast({
                                 heading: 'Thất bại',
-                                text: 'Không thể tải file lên',
+                                text: response.responseJSON.message,
                                 showHideTransition: 'fade',
                                 icon: 'error'
                             })

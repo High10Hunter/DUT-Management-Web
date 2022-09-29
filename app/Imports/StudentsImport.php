@@ -77,7 +77,8 @@ class StudentsImport implements ToArray, WithHeadingRow
                 }
             }
         } catch (\Throwable $th) {
-            dd($th->getMessage());
+            // dd($each, $th->getMessage());
+            return $th->getMessage();
         }
     }
 

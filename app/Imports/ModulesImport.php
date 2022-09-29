@@ -23,27 +23,28 @@ class ModulesImport implements ToArray, WithHeadingRow
                     $subjectId = $each['ma_mon'];
                     $moduleName = $this->generateModuleName($subjectId, $index);
                     $lecturerId = $each['ma_giang_vien'];
-                    $schedule = $each['lich_hoc'];
+                    $schedule =  explode(',', $each['lich_hoc']);
                     $startSlot = $each['tiet_bat_dau'];
                     $endSlot = $each['tiet_ket_thuc'];
                     $beginDate = $each['ngay_bat_dau'];
-                    $endDate = $each['ngay_ket_thuc'];
+                    $lessons = $each['so_tiet'];
 
                     Module::insert([
                         'name' => $moduleName,
                         'subject_id' => $subjectId,
                         'lecturer_id' => $lecturerId,
-                        'schedule' => $schedule,
+                        'schedule' => json_encode($schedule),
                         'start_slot' => $startSlot,
                         'end_slot' =>  $endSlot,
                         'begin_date' =>  $beginDate,
-                        'end_date' =>  $endDate,
+                        'lessons' =>  $lessons,
                         'status' => 1,
                     ]);
                 }
             }
         } catch (\Throwable $th) {
-            dd($th->getMessage());
+            dd($moduleArr, $th->getMessage());
+            return $th->getMessage();
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ModulesSampleExport;
 use App\Imports\ModulesImport;
 use App\Models\Lecturer;
 use App\Models\Module;
@@ -58,11 +59,16 @@ class ModuleController extends Controller
 
             Excel::import(new ModulesImport(), $request->file('file'));
             DB::commit();
-            return $this->successResponse();
+            return $this->successResponse([], 'File đã được tải lên');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->errorResponse($th->getMessage());
+            return $this->errorResponse('Không thể tải file lên');
         }
+    }
+
+    public function exportSampleCSV()
+    {
+        return Excel::download(new ModulesSampleExport, 'sampleModulesImport.csv');
     }
 
     public function edit(Module $module)

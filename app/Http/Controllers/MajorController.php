@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MajorsSampleExport;
 use App\Models\Major;
 use App\Http\Requests\StoreMajorRequest;
 use App\Http\Requests\UpdateMajorRequest;
@@ -46,7 +47,7 @@ class MajorController extends Controller
 
         $query = $query->where('name', 'like', '%' . $search . '%');
 
-        $data = $query->paginate(10)
+        $data = $query->orderBy('id', 'desc')->paginate(10)
             ->appends($request->all());
 
         return view("admin.$this->table.index", [
@@ -63,11 +64,16 @@ class MajorController extends Controller
         try {
             Excel::import(new MajorsImport, $request->file('file'));
             DB::commit();
-            return $this->successResponse();
+            return $this->successResponse([], 'File đã được tải lên');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->errorResponse($th->getMessage());
+            return $this->errorResponse('Không thể tải file lên');
         }
+    }
+
+    public function exportSampleCSV()
+    {
+        return Excel::download(new MajorsSampleExport, 'sampleMajorsImport.csv');
     }
 
     public function edit(Major $major)

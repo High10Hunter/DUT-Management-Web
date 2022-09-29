@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SubjectsSampleExport;
 use App\Models\Subject;
 use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
@@ -10,9 +11,11 @@ use App\Models\_Class;
 use App\Models\Course;
 use App\Models\Faculty;
 use App\Models\Major;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SubjectController extends Controller
@@ -91,7 +94,7 @@ class SubjectController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $data = $query->paginate(10)
+        $data = $query->orderBy('id', 'desc')->paginate(10)
             ->appends($request->all());
 
         return view("admin.$this->table.index", [
@@ -105,16 +108,21 @@ class SubjectController extends Controller
         ]);
     }
 
-    public function importCSV(Request $request)
+    public function importCSV(Request $request): JsonResponse
     {
         DB::beginTransaction();
         try {
             Excel::import(new SubjectsImport, $request->file('file'));
             DB::commit();
-            return $this->successResponse();
+            return $this->successResponse([], 'Tải file lên thành công');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->errorResponse($th->getMessage());
+            return $this->errorResponse('Không thể tải file lên');
         }
+    }
+
+    public function exportSampleCSV()
+    {
+        return Excel::download(new SubjectsSampleExport, 'sampleSubjectsImport.csv');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsSampleExport;
 use App\Models\Student;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Imports\StudentsImport;
@@ -143,11 +144,16 @@ class StudentController extends Controller
 
             Excel::import(new StudentsImport($studentsPerClass), $request->file('file'));
             DB::commit();
-            return $this->successResponse();
+            return $this->successResponse([], 'File đã được tải lên');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->errorResponse($th->getMessage());
+            return $this->errorResponse('Không thể tải file lên');
         }
+    }
+
+    public function exportSampleCSV()
+    {
+        return Excel::download(new StudentsSampleExport, 'sampleStudentsImport.csv');
     }
 
     public function edit(Student $student)

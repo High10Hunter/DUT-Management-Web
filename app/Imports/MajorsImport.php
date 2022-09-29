@@ -14,7 +14,7 @@ class MajorsImport implements ToArray, WithHeadingRow
         try {
             foreach ($array as $each) {
                 $majorName = $each['ten_nganh'];
-                $facultyName = $each['khoa'];
+                $facultyName = $each['ten_khoa'];
 
                 if (!is_null($facultyName)) {
                     $facultyId = Faculty::firstOrCreate([
@@ -30,7 +30,7 @@ class MajorsImport implements ToArray, WithHeadingRow
                 }
             }
         } catch (\Throwable $th) {
-            dd($each, $th->getMessage());
+            return $th->getMessage();
         }
     }
 }

@@ -53,7 +53,7 @@ class SubjectsImport implements ToArray, WithHeadingRow
                 }
             }
         } catch (\Throwable $th) {
-            dd($each, $th->getMessage());
+            return $th->getMessage();
         }
     }
 }

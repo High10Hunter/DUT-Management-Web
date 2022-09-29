@@ -26,7 +26,7 @@ class CourseController extends Controller
 
         $query = $this->model->where('name', 'like', '%' . $search . '%');
 
-        $data = $query->paginate(10)
+        $data = $query->orderBy('id', 'desc')->paginate(10)
             ->appends($request->all());
 
         return view(
