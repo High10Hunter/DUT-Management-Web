@@ -27,10 +27,15 @@ class PeriodController extends Controller
 
     public function index()
     {
-        $lecturer_id = auth()->user()->id;
+        $lecturerId = auth()->user()->id;
         $modules = Module::query()
             ->with(['subject:id,name'])
-            ->where('lecturer_id', $lecturer_id)
+            ->where(
+                [
+                    'lecturer_id' => $lecturerId,
+                    'status' => 1,
+                ]
+            )
             ->get();
 
         date_default_timezone_set("Asia/Bangkok");
@@ -54,7 +59,12 @@ class PeriodController extends Controller
 
         $modules = Module::query()
             ->with(['subject:id,name'])
-            ->where('lecturer_id', $lecturerId)
+            ->where(
+                [
+                    'lecturer_id' => $lecturerId,
+                    'status' => 1,
+                ]
+            )
             ->get();
 
         $attendance = $this->model
@@ -144,72 +154,77 @@ class PeriodController extends Controller
     {
         $moduleId = $request->get('module_id');
         $lecturerId = auth()->user()->id;
+        $remainingLessons = $request->get('remaining_lessons');
         $statusArr = $request->get('status');
 
         if (!is_null($statusArr)) {
-            $period = $this->model
-                ->where([
-                    'module_id' => (int)$moduleId,
-                    'date' => date('Y-m-d'),
-                    'lecturer_id' => $lecturerId,
-                ])
-                ->first();
+            try {
+                $period = $this->model
+                    ->where([
+                        'module_id' => (int)$moduleId,
+                        'date' => date('Y-m-d'),
+                        'lecturer_id' => $lecturerId,
+                    ])
+                    ->first();
 
-            if (is_null($period)) {
-                $period = Period::create([
-                    'module_id' => (int)$moduleId,
-                    'date' => date('Y-m-d'),
-                    'lecturer_id' => $lecturerId,
-                ]);
+                if (is_null($period) && $remainingLessons > 0) {
+                    $period = Period::create([
+                        'module_id' => (int)$moduleId,
+                        'date' => date('Y-m-d'),
+                        'lecturer_id' => $lecturerId,
+                    ]);
+                }
+
+                foreach ($statusArr as $studentId => $status) {
+                    PeriodAttendanceDetail::upsert(
+                        [
+                            'period_id' => $period->id,
+                            'student_id' => $studentId,
+                            'status' => (int)$status,
+                        ],
+                        [
+                            'period_id',
+                            'student_id',
+                        ],
+                        [
+                            'status',
+                        ]
+                    );
+                }
+
+                $students = Student::query()->clone()
+                    ->whereRelation('modules', 'module_id', $moduleId)
+                    ->with([
+                        'attendance' => function ($query) use ($period) {
+                            $query->where('period_id', optional($period)->id);
+                        },
+                    ])
+                    ->withCount([
+                        'attendances as not_attended_count' => function ($query) {
+                            $query->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
+                        },
+                        'attendances as excused_count'  => function ($query) {
+                            $query->where('status', PeriodAttendanceStatusEnum::EXCUSED);
+                        },
+                        'attendances as late_count'  => function ($query) {
+                            $query->where('status', PeriodAttendanceStatusEnum::LATE);
+                        },
+                    ])->get();
+
+                $totalNotAttendedArr = [];
+                $totalExcusedArr = [];
+                foreach ($students as $student) {
+                    $totalNotAttendedArr[$student->id] = $student->not_attended_count + $student->late_count * 0.5;
+                    $totalExcusedArr[$student->id] = $student->excused_count;
+                }
+
+                $teachedLessons = Period::query()
+                    ->where('module_id', $moduleId)->count();
+
+                $data = [$totalNotAttendedArr, $totalExcusedArr, $teachedLessons];
+            } catch (\Throwable $th) {
+                return $this->errorResponse('Không thể điểm danh !');
             }
-
-            foreach ($statusArr as $studentId => $status) {
-                PeriodAttendanceDetail::upsert(
-                    [
-                        'period_id' => $period->id,
-                        'student_id' => $studentId,
-                        'status' => (int)$status,
-                    ],
-                    [
-                        'period_id',
-                        'student_id',
-                    ],
-                    [
-                        'status',
-                    ]
-                );
-            }
-
-            $students = Student::query()->clone()
-                ->whereRelation('modules', 'module_id', $moduleId)
-                ->with([
-                    'attendance' => function ($query) use ($period) {
-                        $query->where('period_id', optional($period)->id);
-                    },
-                ])
-                ->withCount([
-                    'attendances as not_attended_count' => function ($query) {
-                        $query->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
-                    },
-                    'attendances as excused_count'  => function ($query) {
-                        $query->where('status', PeriodAttendanceStatusEnum::EXCUSED);
-                    },
-                    'attendances as late_count'  => function ($query) {
-                        $query->where('status', PeriodAttendanceStatusEnum::LATE);
-                    },
-                ])->get();
-
-            $totalNotAttendedArr = [];
-            $totalExcusedArr = [];
-            foreach ($students as $student) {
-                $totalNotAttendedArr[$student->id] = $student->not_attended_count + $student->late_count * 0.5;
-                $totalExcusedArr[$student->id] = $student->excused_count;
-            }
-
-            $teachedLessons = Period::query()
-                ->where('module_id', $moduleId)->count();
-
-            $data = [$totalNotAttendedArr, $totalExcusedArr, $teachedLessons];
         } else {
             return $this->errorResponse('Không thể điểm danh, vui lòng chọn trạng thái đi học của sinh viên !');
         }

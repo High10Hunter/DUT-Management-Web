@@ -66,6 +66,10 @@
             <h3 class="text-center">
                 <span id="class-status" class="badge badge-success">Đã điểm danh</span>
             </h3>
+        @elseif ($moduleLessons - $teachedLessons === 0)
+            <h3 class="text-center">
+                <span id="class-status" data-status="class-ended" class="badge badge-dark-lighten">Đã kết thúc dạy</span>
+            </h3>
         @else
             <h3 class="text-center">
                 <span id="class-status" class="badge badge-danger">Chưa điểm danh</span>
@@ -177,6 +181,7 @@
             <button type="button" id="attendance-btn" class="btn btn-info btn-rounded float-right mr-5">
                 <i class="mdi mdi-account-check"></i> Điểm danh
             </button>
+
             <div id="count-status" class="mt-2">
                 <strong>
                     <div class="row">
@@ -243,6 +248,8 @@
                 });
 
                 let moduleId = $("input[name='module_id']").val();
+                let beforeUpdateRemainingLessons = parseInt($("#remaining-lessons").text());
+
 
                 //update status count after check attendance
                 let countStatus = {
@@ -277,6 +284,7 @@
                     data: {
                         'module_id': moduleId,
                         'status': statusArr,
+                        'remaining_lessons': beforeUpdateRemainingLessons,
                     },
                     success: function(response) {
                         $.toast({
@@ -377,6 +385,12 @@
                     }
                 });
             });
+
+            //disable check attendance button
+            if ($("#class-status").data('status') === "class-ended") {
+                $("#attendance-btn").prop('disabled', true);
+                $('input[type="radio"]').prop('disabled', true);
+            }
         });
     </script>
 @endpush
