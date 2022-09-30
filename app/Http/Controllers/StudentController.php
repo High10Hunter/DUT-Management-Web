@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsExport;
 use App\Exports\StudentsSampleExport;
 use App\Models\Student;
 use App\Http\Requests\Student\UpdateStudentRequest;
@@ -154,6 +155,30 @@ class StudentController extends Controller
     public function exportSampleCSV()
     {
         return Excel::download(new StudentsSampleExport, 'sampleStudentsImport.csv');
+    }
+
+    public function exportCSV(Request $request)
+    {
+        $courseId = $request->input('course_id');
+        $majorId = $request->input('major_id');
+        $classId = $request->input('class_id');
+
+        $fileName = "DSSV";
+        if (isset($courseId)) {
+            $courseName = Course::query()->where('id', $courseId)->value('name');
+            $fileName = $fileName . '-' . $courseName;
+        }
+        if (isset($majorId)) {
+            $majorName = Major::query()->where('id', $majorId)->value('name');
+            $fileName = $fileName . '-' . $majorName;
+        }
+        if (isset($classId)) {
+            $className = _Class::query()->where('id', $classId)->value('name');
+            $fileName = $fileName . '-' . $className;
+        }
+        $fileExtension = ".xlsx";
+        $fileName = $fileName . $fileExtension;
+        return (new StudentsExport($courseId, $majorId, $classId))->download($fileName);
     }
 
     public function edit(Student $student)

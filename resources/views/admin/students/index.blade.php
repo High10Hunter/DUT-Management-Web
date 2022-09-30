@@ -85,6 +85,15 @@
                                 </button>
                             </div>
                         </div><!-- end col-->
+                        <form action="{{ route('admin.students.export_csv') }}" method="POST" class="form-group ml-2">
+                            @csrf
+                            <input type="hidden" name="course_id" value="{{ $selectedCourse }}">
+                            <input type="hidden" name="major_id" value="{{ $selectedMajor }}">
+                            <input type="hidden" name="class_id" value="{{ $selectedClass }}">
+                            <button class="btn btn-primary">
+                                <i class="mdi mdi-file-excel"></i> Xuất file Excel
+                            </button>
+                        </form>
                     </div>
 
                     <div class="table-responsive">

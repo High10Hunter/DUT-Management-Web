@@ -63,6 +63,7 @@ Route::group([
     Route::get('/', [StudentController::class, 'index'])->name('index');
     Route::post('/import_csv', [StudentController::class, 'importCSV'])->name('import_csv');
     Route::get('/export_sample_csv', [StudentController::class, 'exportSampleCSV'])->name('export_sample_csv');
+    Route::post('/export_csv', [StudentController::class, 'exportCSV'])->name('export_csv');
     Route::get('/edit/{student}', [StudentController::class, 'edit'])->name('edit');
     Route::put('/edit/{student}', [StudentController::class, 'update'])->name('update');
     Route::post('/destroy/{student}', [StudentController::class, 'destroy'])->name('destroy');
