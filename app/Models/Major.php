@@ -34,4 +34,20 @@ class Major extends Model
             ->withPivot('course_id', 'number_of_credits')
             ->wherePivot('course_id', $courseId);
     }
+
+    public static function getMajorsInCourse($courseId)
+    {
+        $majors = [];
+        $classes = _Class::query()->clone()->with(['major:id,name'])
+            ->where('course_id', (int)$courseId)->get();
+        foreach ($classes as $class) {
+            if (in_array($class->major, $majors))
+                continue;
+            $majors[] = $class->major;
+        }
+        //change array to collection
+        $majors = collect($majors);
+
+        return $majors;
+    }
 }

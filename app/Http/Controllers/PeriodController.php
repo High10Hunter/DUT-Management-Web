@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\PeriodAttendanceStatusEnum;
 use App\Models\Period;
 use App\Models\Module;
 use App\Models\PeriodAttendanceDetail;
@@ -28,6 +27,9 @@ class PeriodController extends Controller
     public function index()
     {
         $lecturerId = auth()->user()->id;
+        date_default_timezone_set("Asia/Bangkok");
+        $currentWeekday = now()->isoFormat('E') + 1;
+
         $modules = Module::query()
             ->with(['subject:id,name'])
             ->where(
@@ -36,10 +38,9 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
+            ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
-        date_default_timezone_set("Asia/Bangkok");
-        $currentWeekday = now()->isoFormat('E');
 
         return view("lecturers.$this->table.index", [
             'modules' => $modules,
@@ -53,6 +54,10 @@ class PeriodController extends Controller
         $moduleLessons = Module::query()
             ->where('id', $moduleId)->value('lessons');
         $lecturerId = auth()->user()->id;
+
+        date_default_timezone_set("Asia/Bangkok");
+        $currentWeekday = now()->isoFormat('E') + 1;
+
         $search = $request->get('q');
         $maxExcused = 3;
         $teachedLessons = $this->model->where('module_id', $moduleId)->count();
@@ -65,6 +70,7 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
+            ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
         $attendance = $this->model
@@ -77,64 +83,17 @@ class PeriodController extends Controller
 
         $countStatus = [];
         if (!is_null($attendance)) {
-            $countStatus['attended'] = PeriodAttendanceDetail::query()
-                ->where([
-                    'period_id' => $attendance->id,
-                    'status' => PeriodAttendanceStatusEnum::ATTENDED,
-                ])
-                ->count();
-
-            $countStatus['notAttended'] = PeriodAttendanceDetail::query()
-                ->where([
-                    'period_id' => $attendance->id,
-                    'status' => PeriodAttendanceStatusEnum::NOT_ATTENDED,
-                ])
-                ->count();
-
-            $countStatus['excused'] = PeriodAttendanceDetail::query()
-                ->where([
-                    'period_id' => $attendance->id,
-                    'status' => PeriodAttendanceStatusEnum::EXCUSED,
-                ])
-                ->count();
-
-            $countStatus['late'] = PeriodAttendanceDetail::query()
-                ->where([
-                    'period_id' => $attendance->id,
-                    'status' => PeriodAttendanceStatusEnum::LATE,
-                ])
-                ->count();
+            $countStatus = PeriodAttendanceDetail::getTotalStatusOfCurrentPeriod($attendance->id);
         }
 
-        date_default_timezone_set("Asia/Bangkok");
-        $currentWeekday = now()->isoFormat('E');
-
-        $students = Student::query()->clone()
-            ->whereRelation('modules', 'module_id', $moduleId)
-            ->with([
-                'attendance' => function ($query) use ($attendance) {
-                    $query->where('period_id', optional($attendance)->id);
-                },
-                'class:id,name',
-            ])
-            ->withCount([
-                'attendances as not_attended_count' => function ($query) {
-                    $query->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
-                },
-                'attendances as excused_count'  => function ($query) {
-                    $query->where('status', PeriodAttendanceStatusEnum::EXCUSED);
-                },
-                'attendances as late_count'  => function ($query) {
-                    $query->where('status', PeriodAttendanceStatusEnum::LATE);
-                },
-            ]);
+        $query = Student::query()->studentAttendanceOverallStatus($moduleId, $attendance);
 
         if (!is_null($search)) {
-            $students->where('name', 'like', '%' . $search . '%')
+            $query->where('name', 'like', '%' . $search . '%')
                 ->orWhere('student_code', $search);
         }
 
-        $students = $students->get();
+        $students = $query->get();
 
         return view("lecturers.$this->table.index", [
             'modules' => $modules,
@@ -192,24 +151,9 @@ class PeriodController extends Controller
                     );
                 }
 
-                $students = Student::query()->clone()
-                    ->whereRelation('modules', 'module_id', $moduleId)
-                    ->with([
-                        'attendance' => function ($query) use ($period) {
-                            $query->where('period_id', optional($period)->id);
-                        },
-                    ])
-                    ->withCount([
-                        'attendances as not_attended_count' => function ($query) {
-                            $query->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
-                        },
-                        'attendances as excused_count'  => function ($query) {
-                            $query->where('status', PeriodAttendanceStatusEnum::EXCUSED);
-                        },
-                        'attendances as late_count'  => function ($query) {
-                            $query->where('status', PeriodAttendanceStatusEnum::LATE);
-                        },
-                    ])->get();
+                $students = Student::query()
+                    ->studentAttendanceOverallStatus($moduleId, $period)
+                    ->get();
 
                 $totalNotAttendedArr = [];
                 $totalExcusedArr = [];

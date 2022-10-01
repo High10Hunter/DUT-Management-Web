@@ -58,7 +58,7 @@ class CourseController extends Controller
     {
         $this->model->create($request->validated());
 
-        session()->put('success', 'Thêm thành công khoá mời');
+        session()->put('success', 'Thêm thành công khoá mới');
         return redirect()->route("admin.$this->table.index");
     }
 

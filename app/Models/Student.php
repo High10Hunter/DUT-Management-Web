@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PeriodAttendanceStatusEnum;
 use App\Enums\StudentStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -74,5 +75,28 @@ class Student extends Model
     public function attendances(): BelongsToMany
     {
         return $this->belongsToMany(Period::class, 'period_attendance_details');
+    }
+
+    public function scopeStudentAttendanceOverallStatus($query, $moduleId, $attendance)
+    {
+        return $query
+            ->whereRelation('modules', 'module_id', $moduleId)
+            ->with([
+                'attendance' => function ($q) use ($attendance) {
+                    $q->where('period_id', optional($attendance)->id);
+                },
+                'class:id,name',
+            ])
+            ->withCount([
+                'attendances as not_attended_count' => function ($q) {
+                    $q->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
+                },
+                'attendances as excused_count'  => function ($q) {
+                    $q->where('status', PeriodAttendanceStatusEnum::EXCUSED);
+                },
+                'attendances as late_count'  => function ($q) {
+                    $q->where('status', PeriodAttendanceStatusEnum::LATE);
+                },
+            ]);
     }
 }

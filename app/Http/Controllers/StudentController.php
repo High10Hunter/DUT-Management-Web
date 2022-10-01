@@ -46,15 +46,7 @@ class StudentController extends Controller
 
         $majors = [];
         if (!is_null($selectedCourse)) {
-            $classes = _Class::query()->clone()->with(['major:id,name'])
-                ->where('course_id', (int)$selectedCourse)->get();
-            foreach ($classes as $class) {
-                if (in_array($class->major, $majors))
-                    continue;
-                $majors[] = $class->major;
-            }
-            //change array to collection
-            $majors = collect($majors);
+            $majors = Major::getMajorsInCourse($selectedCourse);
 
             $query = $this->model
                 ->whereRelation('class', 'course_id', $selectedCourse)
@@ -178,6 +170,7 @@ class StudentController extends Controller
         }
         $fileExtension = ".xlsx";
         $fileName = $fileName . $fileExtension;
+
         return (new StudentsExport($courseId, $majorId, $classId))->download($fileName);
     }
 

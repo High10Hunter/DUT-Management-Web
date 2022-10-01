@@ -26,9 +26,6 @@
                             @foreach ($modules as $module)
                                 <option value="{{ $module->id }}" @if (isset($moduleId) && $moduleId == $module->id) selected @endif>
                                     {{ $module->name . ' - ' . $module->subject->name }}
-                                    @if (in_array($currentWeekday + 1, $module->schedule))
-                                        (Học phần trong ngày)
-                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -96,8 +93,8 @@
                             <td>
                                 <span id="student-overall-status[{{ $student->id }}]"
                                     class=" 
-                                    @if (isset($attendance) && $student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.5) text-danger font-weight-bold
-                                    @elseif (isset($attendance) && $student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.3) text-warning font-weight-bold
+                                    @if ($student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.5) text-danger font-weight-bold
+                                    @elseif ($student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.3) text-warning font-weight-bold
                                     @else   
                                         text-success font-weight-bold @endif">
                                     {{ $student->name }}
