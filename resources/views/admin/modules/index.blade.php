@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title">Phân công lịch dạy</h4>
+                <h4 class="page-title">Phân công giảng dạy</h4>
             </div>
         </div>
     </div>
@@ -37,7 +37,15 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-2">
+                            <div class="text-lg-right">
+                                <button id="btn-create-module" type="button" class="btn btn-info" data-toggle="modal"
+                                    data-target="#new-module-modal">
+                                    <i class="mdi mdi-calendar-account"></i> Thêm học phần
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
                             <div class="text-lg-right">
                                 <button type="button" class="btn btn-success md-2 mr-2" data-toggle="modal"
                                     data-target="#import-csv-modal">
@@ -114,6 +122,81 @@
         </div> <!-- end col -->
     </div>
 
+    <!-- Create new module Modal -->
+    <div id="new-module-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="new-module-modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-info">
+                    <h4 class="modal-title" id="new-module-modalLabel">Thêm mới học phần</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        Chọn môn
+                        <select name="subject_id" class="select2 form-control subject-select" data-toggle="select2">.
+                            <option value="" disabled selected></option>
+                            @foreach ($subjects as $subject)
+                                <option value="{{ $subject->id }}" data-id="{{ $subject->id }}" class="subject-option">
+                                    {{ $subject->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        Chọn khoa
+                        <select name="faculty_id" class="faculty-select form-control">
+                            <option value="" disabled selected></option>
+                            @foreach ($faculties as $faculty)
+                                <option value="{{ $faculty->id }}" class="faculty-option">
+                                    {{ $faculty->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        Chọn giảng viên
+                        <select name="lecturer_id" class="lecturer-select form-control">
+                            <option value="" disabled selected></option>
+
+                        </select>
+                        Lịch học
+                        <select class="select2 form-control select2-multiple schedule-select" data-toggle="select2"
+                            multiple="multiple" name="schedule[]">
+                            @for ($i = 2; $i <= 7; $i++)
+                                <option value="{{ $i }}" class="schedule-option">
+                                    {{ 'Thứ' . ' ' . $i }}
+                                </option>
+                            @endfor
+                        </select>
+                        Tiết bắt đầu
+                        <select class="form-control start-slot-select">
+                            <option value="" disabled selected></option>
+                            @for ($i = 1; $i <= 10; $i++)
+                                <option value="{{ $i }}" class="start-slot-option">
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                        Tiết kết thúc
+                        <select class="form-control end-slot-select">
+                            <option value="" disabled selected></option>
+                            @for ($i = 1; $i <= 10; $i++)
+                                <option value="{{ $i }}" class="end-slot-option">
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                        Ngày bắt đầu
+                        <input type="date" class="form-control" id="start-date">
+                        Số buổi học
+                        <input type="number" class="form-control lesson-number">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="btn-new-module">Thêm</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <!-- Import CSV Modal -->
     <div id="import-csv-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="import-csv-modalLabel"
         aria-hidden="true">
@@ -150,6 +233,30 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            function getLecturers() {
+                $(".faculty-select").change(function() {
+                    let faculty_id = $("option[class=faculty-option]:selected").val();
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('admin.modules.get_lecturers') }}",
+                        data: {
+                            'faculty_id': faculty_id
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            $('.lecturer-select').empty();
+                            response.data.forEach(each => {
+                                let lecturerId = each.id;
+                                let lecturerName = each.name;
+                                $('.lecturer-select').append(
+                                    `<option value="${lecturerId}" class="lecturer-option">${lecturerName}</option>`
+                                )
+                            });
+                        }
+                    });
+                });
+            }
 
             $(document).ready(function() {
                 $(".select-filter").change(function(e) {
@@ -199,6 +306,62 @@
                         }
                     });
                 });
+
+                $("#btn-create-module").click(function() {
+                    getLecturers();
+                    $("#btn-new-module").click(function() {
+                        let subjectId = $('.subject-select').find(":selected").val();
+                        let lecturerId = $('.lecturer-select').find(":selected").val();
+                        let schedule = $('.schedule-select').select2("val");
+                        let startSlot = $('.start-slot-select').find(":selected").val();
+                        let endSlot = $('.end-slot-select').find(":selected").val();
+                        let startDate = $('#start-date').val();
+                        let lessons = $(".lesson-number").val();
+
+                        $(this).prop('disabled', true);
+                        $(this).html("<span role='btn-status'></span>Đang tải lên");
+                        $("span[role='btn-status']").attr("class",
+                            "spinner-border spinner-border-sm mr-1");
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: '{{ route('admin.modules.store') }}',
+                            data: {
+                                'subject_id': subjectId,
+                                'lecturer_id': lecturerId,
+                                'schedule': JSON.stringify(schedule),
+                                'start_slot': startSlot,
+                                'end_slot': endSlot,
+                                'begin_date': startDate,
+                                'lessons': lessons,
+                            },
+                            success: function(response) {
+
+                                $.toast({
+                                    heading: 'Thành công',
+                                    text: response.message,
+                                    showHideTransition: 'slide',
+                                    position: 'bottom-left',
+                                    icon: 'success'
+                                });
+                                $("#new-module-modal").modal('hide');
+                            },
+                            error: function(response) {
+                                $('#btn-new-module').prop('disabled', false);
+                                $("span[role='btn-status']").remove();
+                                $('#btn-new-module').html('Thêm');
+                                $.toast({
+                                    heading: 'Thất bại',
+                                    text: response.responseJSON.message,
+                                    showHideTransition: 'fade',
+                                    icon: 'error'
+                                })
+                            }
+                        });
+                    })
+                });
+
 
             });
         </script>

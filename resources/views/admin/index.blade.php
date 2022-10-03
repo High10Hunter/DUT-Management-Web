@@ -93,7 +93,7 @@
                                     <h3 class="card-title" style="text-align:center">
                                         <a href="{{ route('admin.modules.index') }}" class="stretched-link text-white">
                                             <i class="mdi mdi-calendar-account"></i>
-                                            Phân công lịch dạy
+                                            Giảng dạy
                                         </a>
                                     </h3>
                                 </div> <!-- end card-body -->

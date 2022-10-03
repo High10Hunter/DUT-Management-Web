@@ -27,7 +27,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="faculty-select">Lịch học</label>
+                                    <label>Lịch học</label>
                                     <select class="select2 form-control select2-multiple" data-toggle="select2"
                                         multiple="multiple" name="schedule[]">
                                         @for ($i = 2; $i <= 7; $i++)

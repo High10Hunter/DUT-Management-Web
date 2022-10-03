@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ModulesSampleExport;
+use App\Http\Requests\Module\StoreModuleRequest;
 use App\Imports\ModulesImport;
+use App\Models\Faculty;
 use App\Models\Lecturer;
 use App\Models\Module;
+use App\Models\Subject;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class ModuleController extends Controller
 {
     use ResponseTrait;
-    private string $title = "Phân công lịch dạy";
+    private string $title = "Phân công giảng dạy";
     private object $model;
     private string $table;
 
@@ -30,6 +33,14 @@ class ModuleController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('q');
+        $subjects = Subject::query()->get([
+            'id',
+            'name'
+        ]);
+        $faculties = Faculty::query()->get([
+            'id',
+            'name'
+        ]);
 
         $query = $this->model->clone()
             ->with([
@@ -49,7 +60,39 @@ class ModuleController extends Controller
         return view("admin.$this->table.index", [
             'data' => $data,
             'search' => $search,
+            'subjects' => $subjects,
+            'faculties' => $faculties,
         ]);
+    }
+
+    public function getLecturers(Request $request): JsonResponse
+    {
+        $facultyId = $request->input('faculty_id');
+        $lecturers = Lecturer::query()
+            ->where('faculty_id', $facultyId)->get([
+                'id',
+                'name',
+            ]);
+
+        return $this->successResponse($lecturers, "Success");
+    }
+
+    public function generateModuleName($subjectId, $index)
+    {
+        return $subjectId . '.' . now()->format('Y') . '.' . 'Nh' . ($index + 1);
+    }
+
+    public function store(StoreModuleRequest $request): JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $index = $this->model->where('subject_id', $data['subject_id'])->count();
+            $data['name'] = $this->generateModuleName($data['subject_id'], $index);
+            $this->model->insert($data);
+            return $this->successResponse([], "Đã tạo thành công học phần, tải lại trang để thấy sự thay đổi");
+        } catch (\Throwable $th) {
+            return $this->errorResponse("Đã có lỗi xảy ra, vui lòng kiểm tra thông tin nhập vào");
+        }
     }
 
     public function importCSV(Request $request): JsonResponse

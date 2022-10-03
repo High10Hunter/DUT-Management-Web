@@ -3,7 +3,6 @@
 namespace App\Imports;
 
 use App\Models\Module;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 

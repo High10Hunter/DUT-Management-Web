@@ -78,6 +78,8 @@ Route::group(
         Route::get('/', [ModuleController::class, 'index'])->name('index');
         Route::post('/import_csv', [ModuleController::class, 'importCSV'])->name('import_csv');
         Route::get('/export_sample_csv', [ModuleController::class, 'exportSampleCSV'])->name('export_sample_csv');
+        Route::post('/get_lecturers', [ModuleController::class, 'getLecturers'])->name('get_lecturers');
+        Route::post('/create', [ModuleController::class, 'store'])->name('store');
         Route::get('/edit/{module}', [ModuleController::class, 'edit'])->name('edit');
         Route::put('/edit/{module}', [ModuleController::class, 'update'])->name('update');
     }
