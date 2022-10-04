@@ -81,6 +81,7 @@ class PeriodController extends Controller
             ])
             ->first();
 
+
         $countStatus = [];
         if (!is_null($attendance)) {
             $countStatus = PeriodAttendanceDetail::getTotalStatusOfCurrentPeriod($attendance->id);
@@ -111,6 +112,9 @@ class PeriodController extends Controller
 
     public function attendance(Request $request): JsonResponse
     {
+        //set the correct time zone
+        date_default_timezone_set("Asia/Bangkok");
+
         $moduleId = $request->get('module_id');
         $lecturerId = auth()->user()->id;
         $remainingLessons = $request->get('remaining_lessons');
