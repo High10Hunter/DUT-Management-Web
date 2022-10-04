@@ -3,9 +3,10 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class SubjectsSampleExport implements FromArray, WithHeadings
+class SubjectsSampleExport implements FromArray, WithHeadings, ShouldAutoSize
 {
     public function headings(): array
     {

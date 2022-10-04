@@ -137,7 +137,7 @@ class StudentController extends Controller
 
             Excel::import(new StudentsImport($studentsPerClass), $request->file('file'));
             DB::commit();
-            return $this->successResponse([], 'File đã được tải lên');
+            return $this->successResponse([], 'File đã được tải lên, tải lại trang để thấy sự thay đổi');
         } catch (\Throwable $th) {
             DB::rollBack();
             return $this->errorResponse('Không thể tải file lên');
@@ -146,7 +146,7 @@ class StudentController extends Controller
 
     public function exportSampleCSV()
     {
-        return Excel::download(new StudentsSampleExport, 'sampleStudentsImport.csv');
+        return Excel::download(new StudentsSampleExport, 'sampleStudentsImport.xlsx');
     }
 
     public function exportCSV(Request $request)

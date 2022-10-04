@@ -152,13 +152,12 @@
                             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                     </div>
                     <div class="form-group">
-                        <a href="{{ route('admin.subjects.export_sample_csv') }}"><em>Tải file
-                                CSV mẫu</em></a>
+                        <a href="{{ route('admin.subjects.export_sample_csv') }}"><em>Tải file mẫu</em></a>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="btn-import-csv">Tải lên</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -214,7 +213,7 @@
                             $('#btn-import-csv').html('Tải lên');
                             $.toast({
                                 heading: 'Thất bại',
-                                text: response.responseJSON.message,
+                                text: "Không thể tải lên, vui lòng kiểm tra lại file",
                                 showHideTransition: 'fade',
                                 icon: 'error'
                             })

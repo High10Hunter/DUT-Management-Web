@@ -114,7 +114,7 @@ class SubjectController extends Controller
         try {
             Excel::import(new SubjectsImport, $request->file('file'));
             DB::commit();
-            return $this->successResponse([], 'Tải file lên thành công');
+            return $this->successResponse([], 'Tải file lên thành công, tải lại trang để thấy sự thay đổi');
         } catch (\Throwable $th) {
             DB::rollBack();
             return $this->errorResponse('Không thể tải file lên');
@@ -123,6 +123,6 @@ class SubjectController extends Controller
 
     public function exportSampleCSV()
     {
-        return Excel::download(new SubjectsSampleExport, 'sampleSubjectsImport.csv');
+        return Excel::download(new SubjectsSampleExport, 'sampleSubjectsImport.xlsx');
     }
 }

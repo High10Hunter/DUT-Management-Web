@@ -4,7 +4,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="form-title">Chỉnh sửa thông tin học phần</h4>
+                    <h4 class="form-title">Chỉnh sửa thông tin học phần {{ $module->name }}</h4>
                     <p class="text-muted font-14">
                         Sửa đổi/cập nhật các thông tin sau
                     </p>

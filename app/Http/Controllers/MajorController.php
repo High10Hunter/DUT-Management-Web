@@ -64,7 +64,7 @@ class MajorController extends Controller
         try {
             Excel::import(new MajorsImport, $request->file('file'));
             DB::commit();
-            return $this->successResponse([], 'File đã được tải lên');
+            return $this->successResponse([], 'File đã được tải lên, tải lại trang để thấy sự thay đổi');
         } catch (\Throwable $th) {
             DB::rollBack();
             return $this->errorResponse('Không thể tải file lên');
@@ -73,7 +73,7 @@ class MajorController extends Controller
 
     public function exportSampleCSV()
     {
-        return Excel::download(new MajorsSampleExport, 'sampleMajorsImport.csv');
+        return Excel::download(new MajorsSampleExport, 'sampleMajorsImport.xlsx');
     }
 
     public function edit(Major $major)
