@@ -21,8 +21,6 @@ class Student extends Model
         'student_code',
         'name',
         'avatar',
-        'username',
-        'password',
         'birthday',
         'gender',
         'email',
@@ -31,10 +29,6 @@ class Student extends Model
         'status',
         'class_id',
         'user_id',
-    ];
-
-    protected $hidden = [
-        'password',
     ];
 
     public function getGenderNameAttribute(): string

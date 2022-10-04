@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\StudentController;
@@ -82,5 +83,19 @@ Route::group(
         Route::post('/create', [ModuleController::class, 'store'])->name('store');
         Route::get('/edit/{module}', [ModuleController::class, 'edit'])->name('edit');
         Route::put('/edit/{module}', [ModuleController::class, 'update'])->name('update');
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'lecturers',
+        'as' => 'lecturers.',
+    ],
+    static function () {
+        Route::get('/', [LecturerController::class, 'index'])->name('index');
+        Route::get('/create', [LecturerController::class, 'create'])->name('create');
+        Route::post('/create', [LecturerController::class, 'store'])->name('store');
+        Route::get('/edit/{lecturer}', [LecturerController::class, 'edit'])->name('edit');
+        Route::put('/edit/{lecturer}', [LecturerController::class, 'update'])->name('update');
     }
 );

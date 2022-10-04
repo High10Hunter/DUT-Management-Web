@@ -24,20 +24,20 @@
                         </a>
                     </li>
 
-                    <li class="side-nav-item mm-active">
+                    <li class="side-nav-item">
                         <a href="#" class="side-nav-link" aria-expanded="true">
                             <i class="mdi mdi-folder-text"></i>
                             <span> Giảng dạy </span>
                             <span class="menu-arrow"></span>
                         </a>
-                        <ul class="side-nav-second-level mm-collapse mm-show" aria-expanded="false" style="">
+                        <ul class="side-nav-second-level mm-collapse" aria-expanded="false" style="">
                             <li class="side-nav-item">
                                 <a href="{{ route('admin.modules.index') }}" aria-expanded="false">
                                     Phân công giảng dạy
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="#" aria-expanded="false">
+                                <a href="{{ route('admin.lecturers.index') }}" aria-expanded="false">
                                     Quản lý giảng viên
                                 </a>
                             </li>
