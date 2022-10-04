@@ -39,9 +39,9 @@
                         </div>
                         <div class="col-lg-2">
                             <div class="text-lg-right">
-                                <button id="btn-create-module" type="button" class="btn btn-info" data-toggle="modal"
+                                <button id="btn-create-module" type="button" class="btn btn-primary" data-toggle="modal"
                                     data-target="#new-module-modal">
-                                    <i class="mdi mdi-calendar-account"></i> Thêm học phần
+                                    <i class="mdi mdi-book-multiple"></i> Thêm học phần
                                 </button>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                             <div class="text-lg-right">
                                 <button type="button" class="btn btn-success md-2 mr-2" data-toggle="modal"
                                     data-target="#import-csv-modal">
-                                    <i class="mdi mdi-file-table"></i> Tải lên file CSV
+                                    <i class="mdi mdi-file-table"></i> Tải lên học phần
                                 </button>
                             </div>
                         </div><!-- end col-->
@@ -68,6 +68,7 @@
                                     <th>Số buổi học</th>
                                     <th>Trạng thái</th>
                                     <th>Chỉnh sửa</th>
+                                    <th>Danh sách sinh viên</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,6 +107,17 @@
                                                 <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>
                                                 </button>
                                             </a>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary student-list"
+                                                data-toggle="modal"
+                                                @if ($each->status === 1) data-target="#student-list-modal"
+                                                    @else   
+                                                    data-target="#import-student-list-modal" @endif
+                                                data-module-id="{{ $each->id }}"
+                                                data-module-name="{{ $each->name . ' - ' . $each->subject->name }}"><i
+                                                    class="mdi mdi-format-list-bulleted-triangle"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -191,7 +203,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" id="btn-new-module">Thêm</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -214,12 +226,60 @@
                     </div>
                     <div class="form-group">
                         <a href="{{ route('admin.modules.export_sample_csv') }}">
-                            <em>Tải file CSV mẫu</em></a>
+                            <em>Tải file mẫu</em></a>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="btn-import-csv">Tải lên</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Import Student List CSV Modal -->
+    <div id="import-student-list-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="import-csv-list-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-success">
+                    <h4 class="modal-title" id="import-csv-list-modalLabel">Tải lên danh sách sinh viên </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <p>Chọn file CSV để tải lên</p>
+                        <input type="file" name="student-list-csv" id="student-list-csv"
+                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                    </div>
+                    <div class="form-group">
+                        <a href="{{ route('admin.modules.export_sample_student_list_csv') }}">
+                            <em>Tải file mẫu</em></a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="btn-import-student-list-csv">Tải lên</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Student list modal -->
+    <div class="modal fade" id="student-list-modal" tabindex="-1" role="dialog"
+        aria-labelledby="scrollableModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-student-list-title" id="scrollableModalTitle">Danh sách sinh viên</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="students-in-module" class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -258,10 +318,64 @@
                 });
             }
 
+            function getStudents() {
+                $(".student-list").click(function() {
+                    let moduleId = $(this).data('module-id');
+                    let moduleName = $(this).data('module-name');
+                    $.ajax({
+                        type: "POST",
+                        url: '{{ route('admin.modules.get_students') }}',
+                        data: {
+                            'module_id': moduleId
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            $(".modal-student-list-title").text(moduleName);
+                            let table =
+                                `<table class="table table-hover table-centered mb-0">
+                            <thead class="thead-light">
+                                <tr class="text-center">
+                                    <th>Mã SV</th>
+                                    <th>Tên</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Lớp</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                            response.data.forEach(function(each) {
+                                console.log(each);
+                                table +=
+                                    `
+                                <tr class="text-center">
+                                    <td>${each.student_code}</td>
+                                    <td>${each.name}</td>
+                                    <td>${each.email}</td>
+                                    <td>${each.phone_number}</td>
+                                    <td>${each.class.name}</td>
+                                </tr>
+                                `
+                            });
+
+                            table +=
+                                `
+                            </tbody>
+                            </table>
+                            `
+
+                            $("#students-in-module").html(table);
+                        }
+                    });
+                });
+            }
+
             $(document).ready(function() {
                 $(".select-filter").change(function(e) {
                     $("#form-filter").submit();
                 });
+
+                getStudents();
 
                 //csv import
                 $("#btn-import-csv").click(function() {
@@ -299,7 +413,55 @@
                             $('#btn-import-csv').html('Tải lên');
                             $.toast({
                                 heading: 'Thất bại',
-                                text: response.responseJSON.message,
+                                text: "Không thể tải lên, vui lòng kiểm tra lại file",
+                                showHideTransition: 'fade',
+                                icon: 'error'
+                            })
+                        }
+                    });
+                });
+
+                //csv import student list
+                let moduleId;
+                $(".student-list").click(function() {
+                    moduleId = $(this).data('module-id');
+                });
+                $("#btn-import-student-list-csv").click(function() {
+                    let formData = new FormData();
+                    formData.append("file", $("#student-list-csv")[0].files[0]);
+                    formData.append("module_id", moduleId);
+
+                    $(this).prop('disabled', true);
+                    $(this).html("<span role='btn-status'></span>Đang tải lên");
+                    $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('admin.modules.import_student_list_csv') }}',
+                        cache: false,
+                        // async: false,
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        enctype: 'multipart/form-data',
+                        processData: false,
+                        success: function(response) {
+                            $.toast({
+                                heading: 'Thành công',
+                                text: response.message,
+                                showHideTransition: 'slide',
+                                position: 'bottom-left',
+                                icon: 'success'
+                            });
+                            $("#import-student-list-modal").modal('hide');
+                        },
+                        error: function(response) {
+                            $('#btn-import-student-list-csv').prop('disabled', false);
+                            $("span[role='btn-status']").remove();
+                            $('#btn-import-student-list-csv').html('Tải lên');
+                            $.toast({
+                                heading: 'Thất bại',
+                                text: "Không thể tải lên, vui lòng kiểm tra lại file",
                                 showHideTransition: 'fade',
                                 icon: 'error'
                             })
@@ -361,8 +523,6 @@
                         });
                     })
                 });
-
-
             });
         </script>
     @endpush

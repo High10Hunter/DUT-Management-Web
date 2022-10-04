@@ -78,8 +78,11 @@ Route::group(
     static function () {
         Route::get('/', [ModuleController::class, 'index'])->name('index');
         Route::post('/import_csv', [ModuleController::class, 'importCSV'])->name('import_csv');
+        Route::post('/import_student_list_csv', [ModuleController::class, 'importStudentListCSV'])->name('import_student_list_csv');
         Route::get('/export_sample_csv', [ModuleController::class, 'exportSampleCSV'])->name('export_sample_csv');
+        Route::get('/export_sample_student_list_csv', [ModuleController::class, 'exportSampleStudentListCSV'])->name('export_sample_student_list_csv');
         Route::post('/get_lecturers', [ModuleController::class, 'getLecturers'])->name('get_lecturers');
+        Route::post('/get_students', [ModuleController::class, 'getStudentsInModule'])->name('get_students');
         Route::post('/create', [ModuleController::class, 'store'])->name('store');
         Route::get('/edit/{module}', [ModuleController::class, 'edit'])->name('edit');
         Route::put('/edit/{module}', [ModuleController::class, 'update'])->name('update');

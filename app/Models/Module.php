@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Module extends Model
 {
@@ -42,7 +43,7 @@ class Module extends Model
 
     public function getStatusNameAttribute()
     {
-        return ($this->status === 1) ? 'Đang học' : 'Kết thúc';
+        return ($this->status === 1) ? 'Đang học' : 'Chưa mở';
     }
 
     public function subject()
@@ -55,7 +56,7 @@ class Module extends Model
         return $this->belongsTo(Lecturer::class);
     }
 
-    public function students()
+    public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'module_student');
     }

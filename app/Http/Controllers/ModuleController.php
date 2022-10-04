@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ModulesSampleExport;
+use App\Exports\ModuleStudentSampleExport;
 use App\Http\Requests\Module\StoreModuleRequest;
 use App\Imports\ModulesImport;
+use App\Imports\ModuleStudentImport;
 use App\Models\Faculty;
 use App\Models\Lecturer;
 use App\Models\Module;
+use App\Models\ModuleStudent;
 use App\Models\Subject;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -95,12 +98,28 @@ class ModuleController extends Controller
         }
     }
 
-    public function importCSV(Request $request): JsonResponse
+    public function getStudentsInModule(Request $request): JsonResponse
+    {
+        try {
+            $moduleId = $request->get('module_id');
+            $students = Module::find($moduleId)
+                ->students()
+                ->with('class:id,name')
+                ->get();
+
+            return $this->successResponse($students, "Success");
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage());
+        }
+    }
+
+    public function importStudentListCSV(Request $request): JsonResponse
     {
         DB::beginTransaction();
         try {
+            $moduleId = $request->get('module_id');
 
-            Excel::import(new ModulesImport(), $request->file('file'));
+            Excel::import(new ModuleStudentImport($moduleId), $request->file('file'));
             DB::commit();
             return $this->successResponse([], 'File đã được tải lên');
         } catch (\Throwable $th) {
@@ -109,9 +128,28 @@ class ModuleController extends Controller
         }
     }
 
+    public function exportSampleStudentListCSV()
+    {
+        return Excel::download(new ModuleStudentSampleExport, 'sampleModuleStudentImport.xlsx');
+    }
+
+    public function importCSV(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+
+            Excel::import(new ModulesImport(), $request->file('file'));
+            DB::commit();
+            return $this->successResponse([], 'File đã được tải lên, tải lại trang để thấy sự thay đổi');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->errorResponse('Không thể tải file lên');
+        }
+    }
+
     public function exportSampleCSV()
     {
-        return Excel::download(new ModulesSampleExport, 'sampleModulesImport.csv');
+        return Excel::download(new ModulesSampleExport, 'sampleModulesImport.xlsx');
     }
 
     public function edit(Module $module)
