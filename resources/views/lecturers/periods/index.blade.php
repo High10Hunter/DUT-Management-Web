@@ -127,7 +127,7 @@
                             <td>
                                 <div class="status-check mt-2">
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input value="1" type="radio" id="{{ $student->id . 'attended' }}"
+                                        <input value="1" type="radio" id="{{ $student->id . 'attended' }}" checked
                                             name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
                                             class="custom-control-input" @if (optional($student->attendance)->status === 1) checked @endif>
                                         <label class="custom-control-label" for="{{ $student->id . 'attended' }}">
@@ -143,7 +143,7 @@
                                         </label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        @if ($student->excused_count <= $maxExcused)
+                                        @if ($student->excused_count < $maxExcused)
                                             <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
                                                 name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
                                                 class="custom-control-input" @if (optional($student->attendance)->status === 2) checked @endif>
@@ -153,7 +153,8 @@
                                         @else
                                             <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
                                                 name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
-                                                class="custom-control-input" @if (optional($student->attendance)->status === 2) checked @endif>
+                                                class="custom-control-input" disabled
+                                                @if (optional($student->attendance)->status === 2) checked @endif>
                                             <label class="text-danger" for="{{ $student->id . 'excuse' }}">
                                                 Hết nghỉ phép
                                             </label>
@@ -317,9 +318,15 @@
 
                         let totalExcusedArr = response.data[1];
                         $.each(totalExcusedArr, function(studentId, numberOfExcused) {
-                            if (numberOfExcused > $("span[id='total-excused[" +
-                                    studentId + "]']").data('max-excused')) {
+                            let maxExcused = $("span[id='total-excused[" +
+                                studentId + "]']").data('max-excused');
+                            if (numberOfExcused >= maxExcused) {
                                 // disable status excused
+                                $("span[id='total-excused[" + studentId + "]']").text(
+                                    maxExcused);
+                                $("input[id='" + studentId + "excuse']").attr(
+                                    'disabled',
+                                    true);
                                 $("label[for='" + studentId + "excuse']").text(
                                     'Hết nghỉ phép');
                                 $("label[for='" + studentId + "excuse']").attr('class',
@@ -334,8 +341,8 @@
                                 $("label[for='" + studentId + "excuse']").attr('class',
                                     'custom-control-label');
                                 $("input[id='" + studentId + "excuse']").attr(
-                                    'enabled',
-                                    true);
+                                    'disabled',
+                                    false);
                             }
                         });
 
