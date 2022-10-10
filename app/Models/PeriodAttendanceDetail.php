@@ -13,11 +13,12 @@ class PeriodAttendanceDetail extends Model
     protected $fillable = [
         'period_id',
         'student_id',
+        'status',
     ];
 
     public $timestamps = false;
 
-    public function getTotalStatusOfCurrentPeriod($periodId): array
+    public static function getTotalStatusOfCurrentPeriod($periodId): array
     {
         $countStatus = [];
         $countStatus['attended'] = 0;

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Module extends Model
 {
@@ -59,5 +60,10 @@ class Module extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'module_student');
+    }
+
+    public function periods(): HasMany
+    {
+        return $this->hasMany(Period::class);
     }
 }

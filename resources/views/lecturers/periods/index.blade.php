@@ -43,21 +43,29 @@
     </div>
     <br>
     @isset($students)
-        <form action="{{ route('lecturer.periods.form') }}">
-            <a href="{{ route('lecturer.periods.form', ['moduleId' => $moduleId]) }}">
-                <i class="mdi mdi-reload"> Tải lại</i>
-            </a>
-            <div class="form-group">
-                <div class="input-group w-25">
-                    <input type="hidden" name="module_id" value="{{ $moduleId }}">
-                    <input name="q" type="text" class="form-control" placeholder="Tìm kiếm sinh viên..."
-                        value="{{ $search }}">
-                    <div class="input-group-append">
-                        <button class="btn btn-dark">Tìm</button>
+        <div class="row">
+            <div class="col-lg-10">
+                <form action="{{ route('lecturer.periods.form') }}">
+                    <a href="{{ route('lecturer.periods.form', ['moduleId' => $moduleId]) }}">
+                        <i class="mdi mdi-reload"> Tải lại</i>
+                    </a>
+                    <div class="form-group">
+                        <div class="input-group w-25">
+                            <input type="hidden" name="module_id" value="{{ $moduleId }}">
+                            <input name="q" type="text" class="form-control" placeholder="Tìm kiếm sinh viên..."
+                                value="{{ $search }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-dark">Tìm</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-        </form>
+            <div class="col-lg-2 mt-3">
+                <a href="{{ route('lecturer.periods.history_attendance', ['module' => $moduleId]) }}" type="button"
+                    class="btn btn-secondary btn-rounded">Lịch sử điểm danh</a>
+            </div>
+        </div>
 
         @if (isset($attendance))
             <h3 class="text-center">

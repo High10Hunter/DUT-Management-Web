@@ -24,10 +24,10 @@ class PeriodController extends Controller
         View::share('title', $this->title);
     }
 
+
     public function index()
     {
         $lecturerId = auth()->user()->id;
-        date_default_timezone_set("Asia/Bangkok");
         $currentWeekday = now()->isoFormat('E') + 1;
 
         $modules = Module::query()
@@ -38,7 +38,7 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
-            ->whereJsonContains('schedule', json_encode($currentWeekday))
+            // ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
 
@@ -55,7 +55,6 @@ class PeriodController extends Controller
             ->where('id', $moduleId)->value('lessons');
         $lecturerId = auth()->user()->id;
 
-        date_default_timezone_set("Asia/Bangkok");
         $currentWeekday = now()->isoFormat('E') + 1;
 
         $search = $request->get('q');
@@ -70,7 +69,7 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
-            ->whereJsonContains('schedule', json_encode($currentWeekday))
+            // ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
         $attendance = $this->model
@@ -112,71 +111,95 @@ class PeriodController extends Controller
 
     public function attendance(Request $request): JsonResponse
     {
-        //set the correct time zone
-        date_default_timezone_set("Asia/Bangkok");
-
         $moduleId = $request->get('module_id');
         $lecturerId = auth()->user()->id;
         $remainingLessons = $request->get('remaining_lessons');
         $statusArr = $request->get('status');
 
-        if (!is_null($statusArr)) {
-            try {
-                $period = $this->model
-                    ->where([
-                        'module_id' => (int)$moduleId,
-                        'date' => date('Y-m-d'),
-                        'lecturer_id' => $lecturerId,
-                    ])
-                    ->first();
+        try {
+            $period = $this->model
+                ->where([
+                    'module_id' => (int)$moduleId,
+                    'date' => date('Y-m-d'),
+                    'lecturer_id' => $lecturerId,
+                ])
+                ->first();
 
-                if (is_null($period) && $remainingLessons > 0) {
-                    $period = Period::create([
-                        'module_id' => (int)$moduleId,
-                        'date' => date('Y-m-d'),
-                        'lecturer_id' => $lecturerId,
-                    ]);
-                }
-
-                foreach ($statusArr as $studentId => $status) {
-                    PeriodAttendanceDetail::upsert(
-                        [
-                            'period_id' => $period->id,
-                            'student_id' => $studentId,
-                            'status' => (int)$status,
-                        ],
-                        [
-                            'period_id',
-                            'student_id',
-                        ],
-                        [
-                            'status',
-                        ]
-                    );
-                }
-
-                $students = Student::query()
-                    ->studentAttendanceOverallStatus($moduleId, $period)
-                    ->get();
-
-                $totalNotAttendedArr = [];
-                $totalExcusedArr = [];
-                foreach ($students as $student) {
-                    $totalNotAttendedArr[$student->id] = $student->not_attended_count + $student->late_count * 0.5;
-                    $totalExcusedArr[$student->id] = $student->excused_count;
-                }
-
-                $teachedLessons = Period::query()
-                    ->where('module_id', $moduleId)->count();
-
-                $data = [$totalNotAttendedArr, $totalExcusedArr, $teachedLessons];
-            } catch (\Throwable $th) {
-                return $this->errorResponse('Không thể điểm danh !');
+            if (is_null($period) && $remainingLessons > 0) {
+                $period = Period::create([
+                    'module_id' => (int)$moduleId,
+                    'date' => date('Y-m-d'),
+                    'lecturer_id' => $lecturerId,
+                ]);
             }
-        } else {
-            return $this->errorResponse('Không thể điểm danh, vui lòng chọn trạng thái đi học của sinh viên !');
+
+            foreach ($statusArr as $studentId => $status) {
+                PeriodAttendanceDetail::upsert(
+                    [
+                        'period_id' => $period->id,
+                        'student_id' => $studentId,
+                        'status' => (int)$status,
+                    ],
+                    [
+                        'period_id',
+                        'student_id',
+                    ],
+                    [
+                        'status',
+                    ]
+                );
+            }
+
+            $students = Student::query()
+                ->studentAttendanceOverallStatus($moduleId, $period)
+                ->get();
+
+            $totalNotAttendedArr = [];
+            $totalExcusedArr = [];
+            foreach ($students as $student) {
+                $totalNotAttendedArr[$student->id] = $student->not_attended_count + $student->late_count * 0.5;
+                $totalExcusedArr[$student->id] = $student->excused_count;
+            }
+
+            $teachedLessons = Period::query()
+                ->where('module_id', $moduleId)->count();
+
+            $data = [$totalNotAttendedArr, $totalExcusedArr, $teachedLessons];
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Không thể điểm danh !');
+        }
+        return $this->successResponse($data, 'Đã cập nhật điểm danh');
+    }
+
+    public function historyAttendance($moduleId)
+    {
+        $module = Period::getModule($moduleId);
+        $periods = $module->periods()->get();
+        $students = $module->students()->get();
+
+        $periodsId = $periods->pluck('id');
+        $periodsDate = $periods->pluck('period_date');
+
+        $historyAttendance = [];
+
+        foreach ($students as $student) {
+            $periods = $student
+                ->attendances()
+                ->where(function ($query) use ($periodsId) {
+                    $query->whereIn('period_id', $periodsId);
+                })
+                ->get();
+            foreach ($periods as $period) {
+                $historyAttendance[$student->student_code . ' - ' . $student->name][] = $period;
+            }
         }
 
-        return $this->successResponse($data, 'Đã cập nhật điểm danh');
+        // dd($historyAttendance);
+
+
+        return view('lecturers.periods.history-attendance', [
+            'periodsDate' => $periodsDate,
+            'historyAttendance' => $historyAttendance,
+        ]);
     }
 }

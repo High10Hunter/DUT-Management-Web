@@ -68,7 +68,8 @@ class Student extends Model
 
     public function attendances(): BelongsToMany
     {
-        return $this->belongsToMany(Period::class, 'period_attendance_details');
+        return $this->belongsToMany(Period::class, 'period_attendance_details')
+            ->withPivot('status');
     }
 
     public function scopeStudentAttendanceOverallStatus($query, $moduleId, $attendance)
