@@ -66,4 +66,16 @@ class Module extends Model
     {
         return $this->hasMany(Period::class);
     }
+
+    public static function getModule($moduleId)
+    {
+        $periods = self::query()
+            ->where('id', $moduleId)
+            ->with([
+                'periods'
+            ])
+            ->firstOrFail();
+
+        return $periods;
+    }
 }

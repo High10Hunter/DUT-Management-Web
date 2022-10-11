@@ -173,33 +173,19 @@ class PeriodController extends Controller
 
     public function historyAttendance($moduleId)
     {
-        $module = Period::getModule($moduleId);
+        $module = Module::getModule($moduleId);
         $periods = $module->periods()->get();
-        $students = $module->students()->get();
 
         $periodsId = $periods->pluck('id');
         $periodsDate = $periods->pluck('period_date');
 
-        $historyAttendance = [];
-
-        foreach ($students as $student) {
-            $periods = $student
-                ->attendances()
-                ->where(function ($query) use ($periodsId) {
-                    $query->whereIn('period_id', $periodsId);
-                })
-                ->get();
-            foreach ($periods as $period) {
-                $historyAttendance[$student->student_code . ' - ' . $student->name][] = $period;
-            }
-        }
-
-        // dd($historyAttendance);
-
+        $historyAttendances = Student::query()
+            ->getStudentsHistoryAttendance($moduleId, $periodsId);
 
         return view('lecturers.periods.history-attendance', [
+            'moduleId' => $moduleId,
             'periodsDate' => $periodsDate,
-            'historyAttendance' => $historyAttendance,
+            'historyAttendances' => $historyAttendances,
         ]);
     }
 }

@@ -27,20 +27,4 @@ class Period extends Model
     {
         return Carbon::parse($this->date)->format('d/m');
     }
-
-
-    public static function getModule($moduleId)
-    {
-        $periods = Module::query()
-            ->where('id', $moduleId)
-            ->with([
-                'students' => function ($q) use ($moduleId) {
-                    $q->where('module_id', $moduleId);
-                },
-                'periods'
-            ])
-            ->firstOrFail();
-
-        return $periods;
-    }
 }

@@ -62,7 +62,7 @@
                 </form>
             </div>
             <div class="col-lg-2 mt-3">
-                <a href="{{ route('lecturer.periods.history_attendance', ['module' => $moduleId]) }}" type="button"
+                <a href="{{ route('lecturer.periods.history_attendance', ['moduleId' => $moduleId]) }}" type="button"
                     class="btn btn-secondary btn-rounded">Lịch sử điểm danh</a>
             </div>
         </div>
