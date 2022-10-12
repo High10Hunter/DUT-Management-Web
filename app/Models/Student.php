@@ -112,12 +112,6 @@ class Student extends Model
                 'attendances as late_count'  => function ($q) {
                     $q->where('status', PeriodAttendanceStatusEnum::LATE);
                 },
-            ])
-            ->get()
-            ->map(function ($each) {
-                $each->class_name = $each->class->name;
-                unset($each->class);
-                return $each;
-            });
+            ]);
     }
 }

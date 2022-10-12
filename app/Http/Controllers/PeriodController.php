@@ -171,21 +171,35 @@ class PeriodController extends Controller
         return $this->successResponse($data, 'Đã cập nhật điểm danh');
     }
 
-    public function historyAttendance($moduleId)
+    public function historyAttendance(Request $request, $moduleId)
     {
         $module = Module::getModule($moduleId);
         $periods = $module->periods()->get();
+        $search = $request->get('q');
 
         $periodsId = $periods->pluck('id');
         $periodsDate = $periods->pluck('period_date');
 
-        $historyAttendances = Student::query()
+        $query = Student::query()
             ->getStudentsHistoryAttendance($moduleId, $periodsId);
 
+        if (!is_null($search)) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('student_code', $search);
+        }
+
+        $historyAttendances = $query->get()
+            ->map(function ($each) {
+                $each->class_name = $each->class->name;
+                unset($each->class);
+                return $each;
+            });
+
         return view('lecturers.periods.history-attendance', [
-            'moduleId' => $moduleId,
+            'module' => $module,
             'periodsDate' => $periodsDate,
             'historyAttendances' => $historyAttendances,
+            'search' => $search,
         ]);
     }
 }

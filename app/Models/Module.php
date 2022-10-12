@@ -72,7 +72,7 @@ class Module extends Model
         $periods = self::query()
             ->where('id', $moduleId)
             ->with([
-                'periods'
+                'periods',
             ])
             ->firstOrFail();
 
