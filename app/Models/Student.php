@@ -72,25 +72,28 @@ class Student extends Model
             ->withPivot('status');
     }
 
-    public function scopeStudentAttendanceOverallStatus($query, $moduleId, $attendance)
+    public function scopeStudentAttendanceOverallStatus($query, $moduleId, $period, $periodsId)
     {
         return $query
             ->whereRelation('modules', 'module_id', $moduleId)
             ->with([
-                'attendance' => function ($q) use ($attendance) {
-                    $q->where('period_id', optional($attendance)->id);
+                'attendance' => function ($q) use ($period) {
+                    $q->where('period_id', optional($period)->id);
                 },
                 'class:id,name',
             ])
             ->withCount([
-                'attendances as not_attended_count' => function ($q) {
-                    $q->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
+                'attendances as not_attended_count' => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
                 },
-                'attendances as excused_count'  => function ($q) {
-                    $q->where('status', PeriodAttendanceStatusEnum::EXCUSED);
+                'attendances as excused_count'  => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::EXCUSED);
                 },
-                'attendances as late_count'  => function ($q) {
-                    $q->where('status', PeriodAttendanceStatusEnum::LATE);
+                'attendances as late_count'  => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::LATE);
                 },
             ]);
     }
@@ -106,11 +109,13 @@ class Student extends Model
                 'class:id,name',
             ])
             ->withCount([
-                'attendances as not_attended_count' => function ($q) {
-                    $q->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
+                'attendances as not_attended_count' => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
                 },
-                'attendances as late_count'  => function ($q) {
-                    $q->where('status', PeriodAttendanceStatusEnum::LATE);
+                'attendances as late_count'  => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::LATE);
                 },
             ]);
     }
