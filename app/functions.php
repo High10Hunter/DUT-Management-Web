@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRoleEnum;
+use App\Models\Config;
 use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getRoleByKey')) {
@@ -72,5 +73,46 @@ if (!function_exists('moveAvatarToUserIDFolderWhenUpdate')) {
         $newPath = $newPathPrefixToStore . $userId . '/' . $userAvatarName;
 
         return $newPath;
+    }
+}
+
+if (!function_exists('getTotalAbsentLessons')) {
+    function getTotalAbsentLessons($notAttendedCount, $lateCount, $lateCoefficient)
+    {
+        return $notAttendedCount + $lateCount * (float)$lateCoefficient;
+    }
+}
+
+if (!function_exists('checkBanFromExam')) {
+    function checkBanFromExam(
+        $notAttendedCount,
+        $lateCount,
+        $lateCoefficient,
+        $teachedLessons,
+        $examBanCoefficient
+    ): bool {
+        $totalAbsentLessons = getTotalAbsentLessons(
+            $notAttendedCount,
+            $lateCount,
+            $lateCoefficient
+        );
+        return ($totalAbsentLessons > $teachedLessons * (float)$examBanCoefficient);
+    }
+}
+
+if (!function_exists('checkWarningExam')) {
+    function checkWarningExam(
+        $notAttendedCount,
+        $lateCount,
+        $lateCoefficient,
+        $teachedLessons,
+        $examWarningCoefficient
+    ): bool {
+        $totalAbsentLessons = getTotalAbsentLessons(
+            $notAttendedCount,
+            $lateCount,
+            $lateCoefficient
+        );
+        return ($totalAbsentLessons > $teachedLessons * (float)$examWarningCoefficient);
     }
 }

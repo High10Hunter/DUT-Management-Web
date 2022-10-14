@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        @if (isset($attendance))
+        @if (isset($period))
             <h3 class="text-center">
                 <span id="class-status" class="badge badge-success">Đã điểm danh</span>
             </h3>
@@ -101,8 +101,18 @@
                             <td>
                                 <span id="student-overall-status[{{ $student->id }}]"
                                     class=" 
-                                    @if ($student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.5) text-danger font-weight-bold
-                                    @elseif ($student->not_attended_count + $student->late_count * 0.5 > $teachedLessons * 0.3) text-warning font-weight-bold
+                                    @if (checkBanFromExam(
+                                        $student->not_attended_count,
+                                        $student->late_count,
+                                        $configs['late_coefficient'],
+                                        $teachedLessons,
+                                        $configs['exam_ban_coefficient'])) text-danger font-weight-bold
+                                    @elseif (checkWarningExam(
+                                        $student->not_attended_count,
+                                        $student->late_count,
+                                        $configs['late_coefficient'],
+                                        $teachedLessons,
+                                        $configs['exam_warning_coefficient'])) text-warning font-weight-bold
                                     @else   
                                         text-success font-weight-bold @endif">
                                     {{ $student->name }}
@@ -110,18 +120,18 @@
                                 /
                                 <span style="color:rgb(187, 26, 26)">
                                     (<span
-                                        id="total-not-attended[{{ $student->id }}]">{{ $student->not_attended_count + $student->late_count * 0.5 }}</span>
+                                        id="total-not-attended[{{ $student->id }}]">{{ getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) }}</span>
                                     /
                                     <span class="total-lessons"
                                         data-total-lessons="{{ $teachedLessons }}">{{ $teachedLessons }}</span>)
                                 </span>
                                 /
                                 <span id="total-excused[{{ $student->id }}]" class="text-primary"
-                                    data-max-excused="{{ $maxExcused }}">
-                                    @if ($student->excused_count <= $maxExcused)
+                                    data-max-excused="{{ $configs['max_excused'] }}">
+                                    @if ($student->excused_count <= $configs['max_excused'])
                                         {{ $student->excused_count }}
                                     @else
-                                        {{ $maxExcused }}
+                                        {{ $configs['max_excused'] }}
                                     @endif
                                 </span>
                             </td>
@@ -134,6 +144,7 @@
                             </td>
                             <td>
                                 <div class="status-check mt-2">
+                                    <input type="hidden" name="late_coefficient" value="{{ $configs['late_coefficient'] }}">
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input value="1" type="radio" id="{{ $student->id . 'attended' }}" checked
                                             name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
@@ -151,7 +162,7 @@
                                         </label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        @if ($student->excused_count < $maxExcused)
+                                        @if ($student->excused_count < $configs['max_excused'])
                                             <input value="2" type="radio" id="{{ $student->id . 'excuse' }}"
                                                 name="status[{{ $student->id }}]" data-student-id="{{ $student->id }}"
                                                 class="custom-control-input" @if (optional($student->attendance)->status === 2) checked @endif>
@@ -194,7 +205,7 @@
                         <p class="col-3 text-black">
                             Tổng số sinh viên :
                             <span class="count-students">
-                                @isset($attendance)
+                                @isset($period)
                                     {{ $countStatus['attended'] + $countStatus['notAttended'] + $countStatus['excused'] + $countStatus['late'] }}
                                 @endisset
                             </span>
@@ -202,7 +213,7 @@
                         <p class="col-3 text-success">
                             Đi học :
                             <span class="count-attended">
-                                @isset($attendance)
+                                @isset($period)
                                     {{ $countStatus['attended'] }}
                                 @endisset
                             </span>
@@ -210,7 +221,7 @@
                         <p class="col-3 text-danger">
                             Vắng + có phép :
                             <span class="count-not-attended">
-                                @isset($attendance)
+                                @isset($period)
                                     {{ $countStatus['notAttended'] + $countStatus['excused'] }}
                                 @endisset
                             </span>
@@ -218,7 +229,7 @@
                         <p class="col-3 text-warning">
                             Đi muộn :
                             <span class="count-late">
-                                @isset($attendance)
+                                @isset($period)
                                     {{ $countStatus['late'] }}
                                 @endisset
                             </span>
@@ -255,7 +266,7 @@
 
                 let moduleId = $("input[name='module_id']").val();
                 let beforeUpdateRemainingLessons = parseInt($("#remaining-lessons").text());
-
+                let lateCoefficient = $("input[name='late_coefficient']").val();
 
                 //update status count after check attendance
                 let countStatus = {
@@ -291,6 +302,7 @@
                         'module_id': moduleId,
                         'status': statusArr,
                         'remaining_lessons': beforeUpdateRemainingLessons,
+                        'late_coefficient': lateCoefficient,
                     },
                     success: function(response) {
                         $.toast({

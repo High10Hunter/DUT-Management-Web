@@ -94,24 +94,43 @@
                             <td>{{ $student->student_code }}</td>
                             <td
                                 class=" 
-                                @if ($student->not_attended_count + $student->late_count * 0.5 > count($periodsDate) * 0.5) table-danger
-                                @elseif ($student->not_attended_count + $student->late_count * 0.5 > count($periodsDate) * 0.3) table-warning @endif
+                                @if (checkBanFromExam(
+                                    $student->not_attended_count,
+                                    $student->late_count,
+                                    $configs['late_coefficient'],
+                                    count($periodsDate),
+                                    $configs['exam_ban_coefficient'])) table-danger
+                                @elseif (checkWarningExam(
+                                    $student->not_attended_count,
+                                    $student->late_count,
+                                    $configs['late_coefficient'],
+                                    count($periodsDate),
+                                    $configs['exam_warning_coefficient'])) table-warning @endif
                                 ">
                                 {{ $student->name }}</td>
                             <td>{{ $student->class_name }}</td>
                             <td style="color:brown; font-weight:bold">
-                                {{ $student->not_attended_count + $student->late_count * 0.5 }} /
+                                {{ getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) }}
+                                /
                                 {{ count($periodsDate) }}
                             </td>
                             @foreach ($student->attendances as $period)
                                 @if ($period->pivot->status == 1)
-                                    <td class="text-success font-weight-bold">.</td>
+                                    <td class="status text-success font-weight-bold" data-student-id="{{ $student->id }}">
+                                        .
+                                    </td>
                                 @elseif ($period->pivot->status == 0)
-                                    <td class="text-danger font-weight-bold">N</td>
+                                    <td class="status text-danger font-weight-bold" data-student-id="{{ $student->id }}">
+                                        N
+                                    </td>
                                 @elseif ($period->pivot->status == 2)
-                                    <td class="text-primary font-weight-bold">P</td>
+                                    <td class="status text-primary font-weight-bold" data-student-id="{{ $student->id }}">
+                                        P
+                                    </td>
                                 @elseif ($period->pivot->status == 3)
-                                    <td class="text-warning font-weight-bold">M</td>
+                                    <td class="status text-warning font-weight-bold" data-student-id="{{ $student->id }}">
+                                        M
+                                    </td>
                                 @endif
                             @endforeach
                             @if (count($periodsDate) == $module->lessons)
@@ -135,3 +154,18 @@
         </div>
     </div>
 @endsection
+@push('js')
+    <script>
+        // $(document).ready(function() {
+        //     $(".status").dblclick(function() {
+        //         selectOptions = `<select>
+    //                 <option>Đi học</option>
+    //                 <option>Vắng</option>
+    //                 <option>Có phép</option>
+    //                 <option>Muộn</option>
+    //             </select>`
+        //         $(this).html(selectOptions);
+        //     })
+        // });
+    </script>
+@endpush
