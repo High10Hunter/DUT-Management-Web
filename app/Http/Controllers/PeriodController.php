@@ -39,7 +39,7 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
-            ->whereJsonContains('schedule', json_encode($currentWeekday))
+            // ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
 
@@ -76,7 +76,7 @@ class PeriodController extends Controller
                     'status' => 1,
                 ]
             )
-            ->whereJsonContains('schedule', json_encode($currentWeekday))
+            // ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
         $period = $this->model
@@ -235,5 +235,51 @@ class PeriodController extends Controller
             'search' => $search,
             'configs' => $configs,
         ]);
+    }
+
+    public function updateHistoryAttendance(Request $request): JsonResponse
+    {
+        $periodId = $request->get('period_id');
+        $studentId = $request->get('student_id');
+        $status = $request->get('status');
+        $statusArr = [
+            1 =>  [
+                "text" => '.',
+                'displayClass' => 'text-success',
+            ],
+            0 => [
+                "text" => 'N',
+                'displayClass' => 'text-danger',
+            ],
+            2 => [
+                "text" => 'P',
+                'displayClass' => 'text-primary',
+            ],
+            3 => [
+                "text" => 'M',
+                'displayClass' => 'text-warning',
+            ],
+        ];
+        try {
+            PeriodAttendanceDetail::upsert(
+                [
+                    'period_id' => $periodId,
+                    'student_id' => $studentId,
+                    'status' => (int)$status,
+                ],
+                [
+                    'period_id',
+                    'student_id',
+                ],
+                [
+                    'status',
+                ]
+            );
+
+            return $this->successResponse([$statusArr[$status]], "Đã cập nhật điểm danh, tải lại trang để thấy sự thay đổi");
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->errorResponse("Không thể cập nhật điểm danh");
+        }
     }
 }

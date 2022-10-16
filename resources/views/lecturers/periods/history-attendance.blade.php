@@ -109,26 +109,30 @@
                                 ">
                                 {{ $student->name }}</td>
                             <td>{{ $student->class_name }}</td>
-                            <td style="color:brown; font-weight:bold">
+                            <td name="{{ $student->id }}" style="color:brown; font-weight:bold">
                                 {{ getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) }}
                                 /
                                 {{ count($periodsDate) }}
                             </td>
                             @foreach ($student->attendances as $period)
                                 @if ($period->pivot->status == 1)
-                                    <td class="status text-success font-weight-bold" data-student-id="{{ $student->id }}">
+                                    <td class="status text-success font-weight-bold" data-period-id="{{ $period->id }}"
+                                        data-student-id="{{ $student->id }}" data-status=".">
                                         .
                                     </td>
                                 @elseif ($period->pivot->status == 0)
-                                    <td class="status text-danger font-weight-bold" data-student-id="{{ $student->id }}">
+                                    <td class="status text-danger font-weight-bold" data-period-id="{{ $period->id }}"
+                                        data-student-id="{{ $student->id }}" data-status="N">
                                         N
                                     </td>
                                 @elseif ($period->pivot->status == 2)
-                                    <td class="status text-primary font-weight-bold" data-student-id="{{ $student->id }}">
+                                    <td class="status text-primary font-weight-bold" data-period-id="P"
+                                        data-student-id="{{ $student->id }}" data-status="{{ $period->pivot->status }}">
                                         P
                                     </td>
                                 @elseif ($period->pivot->status == 3)
-                                    <td class="status text-warning font-weight-bold" data-student-id="{{ $student->id }}">
+                                    <td class="status text-warning font-weight-bold" data-period-id="{{ $period->id }}"
+                                        data-student-id="{{ $student->id }}" data-status="M">
                                         M
                                     </td>
                                 @endif
@@ -156,16 +160,88 @@
 @endsection
 @push('js')
     <script>
-        // $(document).ready(function() {
-        //     $(".status").dblclick(function() {
-        //         selectOptions = `<select>
-    //                 <option>Đi học</option>
-    //                 <option>Vắng</option>
-    //                 <option>Có phép</option>
-    //                 <option>Muộn</option>
-    //             </select>`
-        //         $(this).html(selectOptions);
-        //     })
-        // });
+        //prevent csrf-token miss-match
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        function updateStatusAttendanceHistory() {
+            let periodId = null;
+            let studentId = null;
+            let currentStatus = null;
+            let selectedStatus = null;
+
+            //trigger select option status
+            $(".status").dblclick(function() {
+                selectOptions = `<select class="select-status">
+                    <option value="" selected disabled></option>"
+                    <option value="1">Đi học</option>
+                    <option value="0">Vắng</option>
+                    <option value="2">Có phép</option>
+                    <option value="3">Muộn</option>
+                    </select>`
+                $(this).html(selectOptions);
+
+                periodId = $(this).data('period-id');
+                studentId = $(this).data('student-id');
+                currentStatus = $(this).data('status');
+            });
+
+            //determine the click event
+            $(document).click(function(event) {
+                let target = event.target;
+                //click outside the select option
+                if (target.closest('.select-status') == null &&
+                    $('.select-status').is(":visible")) {
+                    selectedStatus = $('.select-status option:selected').val();
+                    let oldHistoryStatus = $('.select-status').parents('td')
+                    $('.select-status').remove();
+
+                    if (selectedStatus != "") {
+                        $.ajax({
+                            type: 'POST',
+                            url: '{{ route('lecturer.periods.update_history_attendance') }}',
+                            data: {
+                                'period_id': periodId,
+                                'student_id': studentId,
+                                'status': selectedStatus,
+                            },
+                            dataType: "json",
+                            success: function(response) {
+                                $.toast({
+                                    heading: 'Thành công',
+                                    text: response.message,
+                                    showHideTransition: 'slide',
+                                    position: 'bottom-left',
+                                    icon: 'success'
+                                });
+
+                                oldHistoryStatus.attr({
+                                    "class": `status ${response.data[0].displayClass} font-weight-bold`,
+                                    "data-status": response.data[0].text,
+                                });
+                                oldHistoryStatus.text(response.data[0].text);
+                            }
+                        });
+                    } else {
+                        oldHistoryStatus.text(currentStatus);
+                    }
+
+                    removeClickListener();
+                }
+            });
+
+            document.addEventListener('click', updateStatusAttendanceHistory);
+        }
+
+        const removeClickListener = () => {
+            document.removeEventListener('click', updateStatusAttendanceHistory);
+        }
+
+        $(document).ready(function() {
+            updateStatusAttendanceHistory();
+        });
     </script>
 @endpush
