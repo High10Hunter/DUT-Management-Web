@@ -11,7 +11,7 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="{{ route('admin.students.index') }}" class="side-nav-link">
+                        <a href="{{ route('lecturer.schedule_teaching.index') }}" class="side-nav-link">
                             <i class="mdi mdi-calendar-month"></i>
                             <span> Xem lịch dạy </span>
                         </a>

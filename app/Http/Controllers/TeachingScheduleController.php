@@ -2,85 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TeachingSchedule;
-use App\Http\Requests\StoreTeachingScheduleRequest;
-use App\Http\Requests\UpdateTeachingScheduleRequest;
+use App\Enums\TimeSlotEnum;
+use App\Models\Module;
+use Carbon\Carbon;
 
 class TeachingScheduleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        return view('lecturers.schedules.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function getSchedules()
     {
-        //
-    }
+        $modules = Module::query()
+            ->where('lecturer_id', auth()->user()->id)
+            ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreTeachingScheduleRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreTeachingScheduleRequest $request)
-    {
-        //
-    }
+        $schedule = [];
+        foreach ($modules as $module) {
+            $beginDate = $module->begin_date;
+            $scheduleDays = $module->schedule;
+            $lessons = $module->lessons;
+            $moduleName = $module->name;
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\TeachingSchedule  $teachingSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function show(TeachingSchedule $teachingSchedule)
-    {
-        //
-    }
+            $startSlot = Carbon::createFromFormat('H:i:s', TimeSlotEnum::getStartTimeBySlotId($module->start_slot));
+            $endSlot = $startSlot->copy()->addMinutes(TimeSlotEnum::DURATION);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\TeachingSchedule  $teachingSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(TeachingSchedule $teachingSchedule)
-    {
-        //
-    }
+            $beginDate = Carbon::createFromFormat('Y-m-d', $beginDate);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateTeachingScheduleRequest  $request
-     * @param  \App\Models\TeachingSchedule  $teachingSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateTeachingScheduleRequest $request, TeachingSchedule $teachingSchedule)
-    {
-        //
-    }
+            $schedule[] = [
+                "title" => $moduleName,
+                "begin_date" => $beginDate,
+                "start_slot" => $startSlot->format('H:i:s'),
+                "end_slot" => $endSlot->format('H:i:s'),
+            ];
+            --$lessons;
+            while ($lessons > 0) {
+                for ($i = 0; $i < count($scheduleDays); $i++) {
+                    $current = end($schedule)['begin_date'];
+                    $currentDayOfWeek = $current->dayOfWeek + 1;
+                    $offset = (int)$scheduleDays[$i] - $currentDayOfWeek;
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\TeachingSchedule  $teachingSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(TeachingSchedule $teachingSchedule)
-    {
-        //
+                    $next = $current->copy()->addDays($offset);
+                    $schedule[] = [
+                        "title" => $moduleName,
+                        "begin_date" => $next,
+                        "start_slot" => $startSlot->format('H:i:s'),
+                        "end_slot" => $endSlot->format('H:i:s'),
+                    ];
+                    --$lessons;
+                }
+
+                if ($lessons > 0) {
+                    $startDayOfWeekIndex = (count($schedule) - 1) - (count($scheduleDays) - 1);
+                    $startDayOfWeek = $schedule[$startDayOfWeekIndex]['begin_date'];
+                    $next = $startDayOfWeek->copy()->addDays(7);
+                    $schedule[] = [
+                        "title" => $moduleName,
+                        "begin_date" => $next,
+                        "start_slot" => $startSlot->format('H:i:s'),
+                        "end_slot" => $endSlot->format('H:i:s'),
+                    ];
+                    --$lessons;
+                }
+            }
+        }
+
+
+        $schedule = array_map(function ($each) {
+            return [
+                "title" => $each['title'],
+                "start" => $each['begin_date']->format('Y-m-d') . ' ' . $each['start_slot'],
+                "end" => $each['begin_date']->format('Y-m-d') . ' ' . $each['end_slot'],
+            ];
+        }, $schedule);
+
+        return response()->json($schedule);
     }
 }
