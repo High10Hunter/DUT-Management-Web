@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\ModulesSampleExport;
 use App\Exports\ModuleStudentSampleExport;
 use App\Http\Requests\Module\StoreModuleRequest;
+use App\Http\Requests\Module\UpdateModuleRequest;
 use App\Imports\ModulesImport;
 use App\Imports\ModuleStudentImport;
 use App\Models\Faculty;
@@ -172,7 +173,7 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function update(Request $request, $moduleId)
+    public function update(UpdateModuleRequest $request, $moduleId)
     {
         $lecturer_id = $request->input('lecturer_id');
         $startSlot = $request->input('start_slot');
@@ -181,11 +182,10 @@ class ModuleController extends Controller
         $beginDate = $request->input('begin_date');
         $lessons = $request->input('lessons');
 
-
         $this->model->where('id', $moduleId)
             ->update([
                 'lecturer_id' => $lecturer_id,
-                'schedule' => $schedule,
+                'schedule' => json_encode($schedule),
                 'start_slot' => $startSlot,
                 'end_slot' =>   $endSlot,
                 'begin_date' => $beginDate,
