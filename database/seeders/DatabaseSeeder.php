@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\EAO_staff;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +20,8 @@ class DatabaseSeeder extends Seeder
             // MajorSubjectSeeder::class,
             // StudentSeeder::class,
             // LecturerSeeder::class,
-            ModuleStudentSeeder::class,
+            // ModuleStudentSeeder::class,
+            EAOStaffSeeder::class,
         ]);
     }
 }
