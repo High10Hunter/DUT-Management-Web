@@ -1,28 +1,52 @@
 @extends('lecturer_layout.master')
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
 @endpush
 @section('content')
     <div id="calendar"></div>
 @endsection
 @push('js')
+    <script src='https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
+    <script src='https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/locales-all.js"></script>
     <script>
         $(document).ready(function() {
             let calendarEl = document.getElementById('calendar');
             let calendar = new FullCalendar.Calendar(calendarEl, {
+                themeSystem: 'bootstrap',
+                locale: 'vi',
+                timeZone: 'Asia/Ho_Chi_Minh',
+                firstDay: 1, //start from monday
                 headerToolbar: {
-                    center: 'dayGridMonth,timeGridWeek'
+                    start: 'today prev,next',
+                    center: 'title',
+                    end: 'timeGridDay,timeGridWeek,dayGridMonth',
                 },
+                initialView: 'timeGridDay',
+                expandRows: true,
+                eventTimeFormat: { // like '14:30'
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false,
+                },
+                handleWindowResize: true,
+                stickyHeaderDates: true,
+                hiddenDays: [0],
+                dayMaxEventRows: true,
+                views: {
+                    timeGrid: {
+                        dayMaxEventRows: 3,
+                        eventMaxStack: 2,
+                    }
+                },
+                nowIndicator: true,
+
                 events: {
                     url: '{{ route('lecturer.schedule_teaching.getSchedules') }}',
                 },
-                initialView: 'dayGridMonth',
-                selectable: true,
-                // dateClick: function(info) {
-                //     $("#datetime-booking").val(info.dateStr);
-                //     $("#modal-booking").modal('show');
-                // }
+                eventDisplay: "block",
             });
             calendar.render();
         });
