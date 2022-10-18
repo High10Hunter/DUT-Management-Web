@@ -17,6 +17,8 @@ class Period extends Model
         'lecturer_id',
     ];
 
+    public $timestamps = false;
+
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'period_attendance_details')

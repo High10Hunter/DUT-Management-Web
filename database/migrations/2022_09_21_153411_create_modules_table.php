@@ -17,6 +17,19 @@ class CreateModulesTable extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->foreignId('subject_id')->constrained();
+            $table->foreignId('lecturer_id')->constrained();
+            $table->json('schedule');
+            $table->smallInteger('start_slot');
+            $table->smallInteger('end_slot');
+            $table->date('begin_date');
+            $table->smallInteger('lessons');
+            $table->boolean('status');
+            $table->unique([
+                'name',
+                'lecturer_id',
+                'start_slot',
+                'end_slot',
+            ]);
         });
     }
 

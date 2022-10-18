@@ -21,7 +21,6 @@ class CreateEAOStaffsTable extends Migration
             $table->boolean('gender')->default(true);
             $table->string('email');
             $table->string('phone_number');
-            $table->smallInteger('role')->default(1);
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
             $table->softDeletes();

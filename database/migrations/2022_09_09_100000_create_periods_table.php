@@ -15,16 +15,13 @@ class CreatePeriodsTable extends Migration
     {
         Schema::create('periods', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_id')->constrained();
-            $table->foreignId('subject_id')->constrained();
+            $table->foreignId('module_id')->constrained();
             $table->date('date');
             $table->foreignId('lecturer_id')->constrained();
             $table->unique([
-                'class_id',
-                'subject_id',
+                'module_id',
                 'date'
             ]);
-            $table->timestamps();
             $table->softDeletes();
         });
     }
