@@ -10,17 +10,20 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\View;
 
 class LecturerController extends Controller
 {
     use ResponseTrait;
     private object $model;
     private string $table;
+    private string $title = "Quản lý giảng viên";
 
     public function __construct()
     {
         $this->model = Lecturer::query();
         $this->table = (new Lecturer())->getTable();
+        View::share('title', $this->title);
     }
 
     public function index(Request $request)
