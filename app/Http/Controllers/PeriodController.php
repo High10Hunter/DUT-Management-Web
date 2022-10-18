@@ -28,7 +28,7 @@ class PeriodController extends Controller
 
     public function index()
     {
-        $lecturerId = auth()->user()->id;
+        $lecturerId = auth()->user()->lecturer->id;
         $currentWeekday = now()->isoFormat('E') + 1;
 
         $modules = Module::query()
@@ -58,7 +58,7 @@ class PeriodController extends Controller
         $periods = $module->periods()->get();
         $periodsId = $periods->pluck('id');
 
-        $lecturerId = auth()->user()->id;
+        $lecturerId = auth()->user()->lecturer->id;
 
         $currentWeekday = now()->isoFormat('E') + 1;
 
@@ -122,7 +122,7 @@ class PeriodController extends Controller
         $periods = $module->periods()->get();
         $periodsId = $periods->pluck('id');
 
-        $lecturerId = auth()->user()->id;
+        $lecturerId = auth()->user()->lecturer->id;
         $remainingLessons = $request->get('remaining_lessons');
         $statusArr = $request->get('status');
         $lateCoefficient = $request->get('late_coefficient');
