@@ -363,7 +363,6 @@
                             </tbody>
                             </table>
                             `
-
                             $("#students-in-module").html(table);
                         }
                     });
@@ -515,7 +514,7 @@
                                 $('#btn-new-module').html('Thêm');
                                 $.toast({
                                     heading: 'Thất bại',
-                                    text: response.responseJSON.message,
+                                    text: "Đã có lỗi xảy ra, vui lòng kiểm tra thông tin nhập vào",
                                     showHideTransition: 'fade',
                                     icon: 'error'
                                 })
