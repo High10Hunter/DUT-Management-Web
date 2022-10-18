@@ -127,7 +127,7 @@
                                     </td>
                                 @elseif ($period->pivot->status == 2)
                                     <td class="status text-primary font-weight-bold" data-period-id="P"
-                                        data-student-id="{{ $student->id }}" data-status="{{ $period->pivot->status }}">
+                                        data-student-id="{{ $student->id }}" data-status="P">
                                         P
                                     </td>
                                 @elseif ($period->pivot->status == 3)
@@ -175,13 +175,14 @@
 
             //trigger select option status
             $(".status").dblclick(function() {
-                selectOptions = `<select class="select-status">
-                    <option value="" selected disabled></option>"
-                    <option value="1">Đi học</option>
-                    <option value="0">Vắng</option>
-                    <option value="2">Có phép</option>
-                    <option value="3">Muộn</option>
-                    </select>`
+                selectOptions = `
+                    <select class="form-control select-status">
+                        <option value="" selected disabled></option>"
+                        <option value="1">Đi học</option>
+                        <option value="0">Vắng</option>
+                        <option value="2">Có phép</option>
+                        <option value="3">Muộn</option>
+                        </select>`
                 $(this).html(selectOptions);
 
                 periodId = $(this).data('period-id');
