@@ -2,13 +2,16 @@
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
     <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+    <style>
+        .fc-event {
+            cursor: context-menu;
+        }
+    </style>
 @endpush
 @section('content')
     <div id="calendar"></div>
 @endsection
 @push('js')
-    <script src='https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
-    <script src='https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/locales-all.js"></script>
     <script>
@@ -47,6 +50,7 @@
                     url: '{{ route('lecturer.schedule_teaching.getSchedules') }}',
                 },
                 eventDisplay: "block",
+                selectable: true,
             });
             calendar.render();
         });
