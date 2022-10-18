@@ -69,17 +69,10 @@ class LecturerController extends Controller
     {
         $data = $request->validated();
         $birthday = $data['birthday'];
-        $birthday = Carbon::createFromFormat('Y-m-d', $birthday)->format('d-m-Y');
-        $password = explode('-', $birthday);
-        $password = implode('', $password);
 
         $user = User::create([
-            'name' => $data['name'],
             'username' => $data['email'],
-            'password' => Hash::make($password),
-            'gender' => $data['gender'],
-            'birthday' => $data['birthday'],
-            'email' => $data['email'],
+            'password' => Hash::make(createPasswordByBirthday($birthday)),
             'role' => UserRoleEnum::LECTURER,
         ]);
 
@@ -108,16 +101,5 @@ class LecturerController extends Controller
 
         session()->put('success', 'Cập nhật giảng viên thành công');
         return redirect()->route("admin.$this->table.index");
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Lecturer  $lecturer
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Lecturer $lecturer)
-    {
-        //
     }
 }

@@ -61,12 +61,8 @@
                         <div class="col-lg-4">
                             <div class="text-lg-right">
                                 <a href="{{ route('admin.users.create_eao_staff') }}" class="btn btn-primary md-2 mr-2">
-                                    <i class="mdi mdi-account-plus"></i> Thêm mới
+                                    <i class="mdi mdi-account-plus"></i> Thêm mới giáo vụ
                                 </a>
-                                {{-- <button type="button" class="btn btn-success" data-toggle="modal"
-                                    data-target="#import-csv-modal">
-                                    Tải lên file CSV
-                                </button> --}}
                             </div>
                         </div><!-- end col-->
                     </div>
@@ -76,7 +72,6 @@
                             <thead class="thead-light">
                                 <tr class="text-center">
                                     <th>#</th>
-                                    <th>Avatar</th>
                                     <th>Tên</th>
                                     <th>Giới tính</th>
                                     <th>Tuổi</th>
@@ -93,31 +88,43 @@
                                 @foreach ($data as $each)
                                     <tr class="text-center">
                                         <td>{{ $each->id }}</td>
-                                        <td>
-                                            @if ($each->avatar)
-                                                <img src="{{ asset('storage/' . $each->avatar) }}"
-                                                    class="img-fluid avatar-lg">
-                                            @endif
-                                        </td>
-                                        <td>{{ $each->name }}</td>
-                                        <td>{{ $each->gender_name }}</td>
-                                        <td>{{ $each->age }}</td>
-                                        <td>
-                                            @if ($each->email)
-                                                <a href="mailto:{{ $each->email }}">
-                                                    {{ $each->email }}
+                                        @if (isset($each->eao_staff) && ($each->role === 0 || $each->role === 1))
+                                            <td>{{ $each->eao_staff->name }}</td>
+                                            <td>{{ $each->eao_staff->gender_name }}</td>
+                                            <td>{{ $each->eao_staff->age }}</td>
+                                            <td>
+                                                <a href="mailto:{{ $each->eao_staff->email }}">
+                                                    {{ $each->eao_staff->email }}
                                                 </a>
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($each->phone_number)
-                                                {{ $each->phone_number }}
-                                            @else
-                                                <i class="dripicons-wrong"></i>
-                                            @endif
-                                        </td>
+                                            </td>
+                                            <td>
+                                                {{ $each->eao_staff->phone_number }}
+                                            </td>
+                                        @elseif (isset($each->lecturer) && $each->role == 2)
+                                            <td>{{ $each->lecturer->name }}</td>
+                                            <td>{{ $each->lecturer->gender_name }}</td>
+                                            <td>{{ $each->lecturer->age }}</td>
+                                            <td>
+                                                <a href="mailto:{{ $each->lecturer->email }}">
+                                                    {{ $each->lecturer->email }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ $each->lecturer->phone_number }}
+                                            </td>
+                                        @elseif (isset($each->student) && $each->role == 3)
+                                            <td>{{ $each->student->name }}</td>
+                                            <td>{{ $each->student->gender_name }}</td>
+                                            <td>{{ $each->student->age }}</td>
+                                            <td>
+                                                <a href="mailto:{{ $each->student->email }}">
+                                                    {{ $each->student->email }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ $each->student->phone_number }}
+                                            </td>
+                                        @endif
                                         <td>{{ $each->role_name }}</td>
                                         <td>{{ $each->status_name }}</td>
                                         <td>

@@ -22,6 +22,23 @@
                                     <span id="birthday-error" class="display_error" style="color: red"></span>
                                     <input class="form-control" id="birthday-input" type="date" name="birthday">
                                 </div>
+                                <div class="form-group">
+                                    <label for="email">Email(*)</label>
+                                    <span id="email-error" class="display_error" style="color: red"></span>
+                                    <input type="email" id="email-input" name="email" class="form-control"
+                                        placeholder="Email">
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="mt-3">
+                                    <div class="form-group">
+                                        <label for="phone_number">Số điện thoại(*)</label>
+                                        <span id="phone-number-error" class="display_error" style="color: red"></span>
+                                        <input type="text" id="phone-number-input" name="phone_number"
+                                            class="form-control">
+                                    </div>
+                                </div>
                                 <label>Giới tính(*)</label>
                                 <span id="gender-error" class="display_error" style="color: red"></span>
                                 <div class="custom-control custom-radio">
@@ -33,24 +50,6 @@
                                     <input type="radio" id="genderFemale" name="gender" class="custom-control-input"
                                         value="0">
                                     <label class="custom-control-label" for="genderFemale">Nữ</label>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <div class="mt-3">
-                                    <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="email" id="email" name="email" class="form-control"
-                                            placeholder="Email">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone_number">Số điện thoại</label>
-                                        <input type="text" id="phone_number" name="phone_number" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="avatar">Ảnh đại diện</label>
-                                        <input type="file" id="avatar" name="avatar" class="form-control-file">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,6 +100,24 @@
                 check = false;
             } else {
                 document.getElementById('birthday-error').innerHTML = "";
+            }
+
+            let email = document.getElementById('email-input').value;
+            if (!email) {
+                document.getElementById('email-error').innerHTML = "Vui lòng nhập email";
+                check = false;
+
+            } else {
+                document.getElementById('email-error').innerHTML = "";
+            }
+
+            let phoneNumber = document.getElementById('phone-number-input').value;
+            if (!phoneNumber) {
+                document.getElementById('phone-number-error').innerHTML = "Vui lòng nhập số điện thoại";
+                check = false;
+
+            } else {
+                document.getElementById('phone-number-error').innerHTML = "";
             }
 
             if (check == false)

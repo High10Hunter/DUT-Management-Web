@@ -57,8 +57,10 @@
                                             placeholder="Email">
                                     </div>
                                     <div class="form-group">
-                                        <label for="phone_number">Số điện thoại</label>
-                                        <input type="text" id="phone_number" name="phone_number" class="form-control">
+                                        <label for="phone_number">Số điện thoại(*)</label>
+                                        <span id="phone-number-error" class="display_error" style="color: red"></span>
+                                        <input type="text" id="phone-number-input" name="phone_number"
+                                            class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -118,6 +120,15 @@
                 check = false;
             } else {
                 document.getElementById('email-error').innerHTML = "";
+            }
+
+            let phoneNumber = document.getElementById('phone-number-input').value;
+            if (!phoneNumber) {
+                document.getElementById('phone-number-error').innerHTML = "Vui lòng nhập số điện thoại";
+                check = false;
+
+            } else {
+                document.getElementById('phone-number-error').innerHTML = "";
             }
 
             let faculty = document.getElementById('faculty-select').value;

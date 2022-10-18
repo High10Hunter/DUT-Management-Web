@@ -2,6 +2,7 @@
 
 use App\Enums\UserRoleEnum;
 use App\Models\Config;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getRoleByKey')) {
@@ -114,5 +115,16 @@ if (!function_exists('checkWarningExam')) {
             $lateCoefficient
         );
         return ($totalAbsentLessons > $teachedLessons * (float)$examWarningCoefficient);
+    }
+}
+
+if (!function_exists('createPasswordByBirthday')) {
+    function createPasswordByBirthday($birthday): string
+    {
+        $birthdayReformat = Carbon::createFromFormat('Y-m-d', $birthday)->format('d-m-Y');
+        $birthdayPassword = explode('-', $birthdayReformat);
+        $birthdayPassword = implode('', $birthdayPassword);
+
+        return $birthdayPassword;
     }
 }

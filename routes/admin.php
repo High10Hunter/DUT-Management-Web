@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EAOStaffController;
 use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ModuleController;
@@ -18,9 +19,8 @@ Route::group([
     'as' => 'users.',
 ], static function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
-    Route::get('/create', [UserController::class, 'createEAOStaff'])->name('create_eao_staff');
-    Route::post('/create', [UserController::class, 'storeEAOStaff'])->name('store_eao_staff');
-    // Route::post('/import_csv', [UserController::class, 'importCSV'])->name('import_csv');
+    Route::get('/create_eao_staff', [EAOStaffController::class, 'create'])->name('create_eao_staff');
+    Route::post('/create_eao_staff', [EAOStaffController::class, 'store'])->name('store_eao_staff');
     Route::post('/reset/{user}', [UserController::class, 'resetAccount'])->name('reset');
     Route::post('/destroy/{user}', [UserController::class, 'destroy'])->name('destroy');
 });

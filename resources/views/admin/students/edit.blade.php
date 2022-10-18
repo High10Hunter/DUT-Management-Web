@@ -4,7 +4,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="form-title">Cập nhật người dùng</h4>
+                    <h4 class="form-title">Cập nhật sinh viên</h4>
                     <p class="text-muted font-14">
                         Điều chỉnh/Bổ sung thông tin
                     </p>
@@ -39,7 +39,11 @@
                                             value="0" @if ($student->gender == 0) checked @endif>
                                         <label class="custom-control-label" for="genderFemale">Nữ</label>
                                     </div>
-                                    <br>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="mt-1">
                                     <label>Tình trạng(*)</label>
                                     <span id="status-error" class="display_error" style="color: red"></span>
                                     <div class="custom-control custom-radio">
@@ -60,33 +64,20 @@
                                         <label class="custom-control-label" for="statusReserved">Bảo lưu</label>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="col-lg-6">
+                                <br>
                                 <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" name="email" class="form-control"
+                                    <label for="email">Email(*)</label>
+                                    <span id="email-error" class="display_error" style="color: red"></span>
+                                    <input type="email" id="email-input" name="email" class="form-control"
                                         placeholder="Email"
                                         @if ($student->email) value ="{{ $student->email }}" @endif>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone_number">Số điện thoại</label>
-                                    <input type="text" id="phone_number" name="phone_number" class="form-control"
+                                    <label for="phone_number">Số điện thoại(*)</label>
+                                    <span id="phone-number-error" class="display_error" style="color: red"></span>
+                                    <input type="text" id="phone-number-input" name="phone_number" class="form-control"
                                         @if ($student->phone_number) value="{{ $student->phone_number }}" @endif>
                                 </div>
-                                <br>
-                                @if ($student->avatar)
-                                    Ảnh cũ
-                                    <input type="hidden" name="old_avatar" value="{{ $student->avatar }}">
-                                    <img src="{{ asset('storage/' . $student->avatar) }}" class="img-responsive"
-                                        height="100" width="100">
-                                    <br>
-                                @endif
-                                <div class="form-group">
-                                    <label for="avatar">Ảnh đại diện</label>
-                                    <input type="file" id="avatar" name="new_avatar" class="form-control-file">
-                                </div>
-
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary float-right" onclick="return validate_form()">Cập
@@ -153,6 +144,24 @@
                 check = false;
             } else {
                 document.getElementById('birthday-error').innerHTML = "";
+            }
+
+            let email = document.getElementById('email-input').value;
+            if (!email) {
+                document.getElementById('email-error').innerHTML = "Vui lòng nhập email";
+                check = false;
+
+            } else {
+                document.getElementById('email-error').innerHTML = "";
+            }
+
+            let phoneNumber = document.getElementById('phone-number-input').value;
+            if (!phoneNumber) {
+                document.getElementById('phone-number-error').innerHTML = "Vui lòng nhập số điện thoại";
+                check = false;
+
+            } else {
+                document.getElementById('phone-number-error').innerHTML = "";
             }
 
             if (check == false)

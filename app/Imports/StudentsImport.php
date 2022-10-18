@@ -53,13 +53,8 @@ class StudentsImport implements ToArray, WithHeadingRow
                     foreach ($studentsChunk as $student) {
                         $i++;
                         $user = User::create([
-                            'name' => $student['ten'],
-                            'username' => "STU" . $this->generateStudentCode($courseId, $majorId, $i),
-                            'password' => Hash::make("STU" . $this->generateStudentCode($courseId, $majorId, $i)),
-                            'gender' => $student['gioi_tinh'],
-                            'birthday' => $student['ngay_sinh'],
-                            'email' => $student['email'],
-                            'phone_number' => $student['sdt'],
+                            'username' => $student['email'],
+                            'password' => Hash::make(createPasswordByBirthday($student['ngay_sinh'])),
                             'role' => UserRoleEnum::STUDENT,
                         ]);
 

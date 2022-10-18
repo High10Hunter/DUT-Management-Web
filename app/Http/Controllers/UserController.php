@@ -41,16 +41,34 @@ class UserController extends Controller
         $roles = UserRoleEnum::getRolesForFilter();
         $status = UserStatusEnum::getStatusForFilter();
 
-        $query = $this->model->latest();
+        $query = $this->model
+            ->with(
+                [
+                    'lecturer',
+                    'student',
+                    'eao_staff',
+                ]
+            )
+            ->latest();
 
         if (!is_null($selectedRole)) {
-            $query->where('role', $request->get('role'));
+            $query->where('role', (int)$selectedRole);
         }
         if (!is_null($selectedStatus)) {
-            $query->where('status', $request->get('status'));
+            $query->where('status', (int)$selectedStatus);
         }
-
-        $query->where('name', 'like', '%' . $search . '%');
+        if (!is_null($search)) {
+            $query->clone()
+                ->whereHas('eao_staff', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('lecturer', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('student', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
+        }
 
         $data = $query->paginate(10)
             ->appends($request->all());
@@ -65,129 +83,35 @@ class UserController extends Controller
         ]);
     }
 
-    public function createEAOStaff()
-    {
-        return view("admin.$this->table.create");
-    }
-
-    public function storeEAOStaff(StoreEAOStaffRequest $request)
-    {
-        $arr = [];
-        $arr = $request->validated();
-
-        //upload avatar
-        if ($request->file('avatar')) {
-            $path = $request->file('avatar')->store(
-                'avatars/users',
-                'public'
-            );
-            $arr['avatar'] = $path;
-        }
-
-        $arr['role'] = UserRoleEnum::EAO_STAFF;
-        $arr['username'] = UserRoleEnum::getRoleForAuthentication((int)$arr['role']);
-        $arr['password'] = UserRoleEnum::getRoleForAuthentication((int)$arr['role']);
-
-        $newUser = $this->model->create($arr);
-
-        //move avatar to a folder with userID
-        $newPath = null;
-        if (!is_null($newUser->avatar)) {
-            $newPath = moveAvatarToUserIDFolderWhenCreate(
-                $newUser->id,
-                'public/avatars/users/',
-                $newUser->avatar,
-                'avatars/users/'
-            );
-        }
-
-        $afterInsertUpdate = [];
-        $afterInsertUpdate['username'] = $newUser->username . $newUser->id;
-        $afterInsertUpdate['password'] = Hash::make($newUser->password . $newUser->id);
-
-        if ($newPath)
-            $afterInsertUpdate['avatar'] = $newPath;
-
-        $newUser::query()
-            ->where('id', $newUser->id)
-            ->update($afterInsertUpdate);
-
-        session()->put('success', 'Thêm người dùng thành công');
-        return redirect()->route("admin.$this->table.index");
-    }
-
-    // public function edit(User $user)
-    // {
-    //     $roles = UserRoleEnum::getRolesForFilter();
-    //     $faculties = Faculty::get([
-    //         'id',
-    //         'name',
-    //     ]);
-    //     $classes = _Class::get([
-    //         'id',
-    //         'name',
-    //     ]);
-
-    //     return view("admin.$this->table.edit", [
-    //         'user' => $user,
-    //         'roles' => $roles,
-    //         'faculties' => $faculties,
-    //         'classes' => $classes,
-    //     ]);
-    // }
-
-    // public function update(UpdateUserRequest $request, $userId)
-    // {
-    //     $updateArr = [];
-    //     $updateArr = $request->validated();
-
-    //     if ($request->file('new_avatar')) {
-    //         //remove old image
-    //         if (!is_null($request->old_avatar))
-    //             //Storage:: get into 'storage/app' path
-    //             Storage::delete('public/' . $request->old_avatar);
-
-    //         //upload new avatar
-    //         $path = $request->file('new_avatar')->store(
-    //             'avatars/users',
-    //             'public'
-    //         );
-
-    //         //move new avatar to userID folder
-    //         $newPath = moveAvatarToUserIDFolderWhenUpdate(
-    //             $userId,
-    //             $path,
-    //             'public/avatars/users/',
-    //             'avatars/users/'
-    //         );
-
-    //         $updateArr['avatar'] = $newPath;
-    //     } else
-    //         $updateArr['avatar'] = $request->old_avatar;
-
-    //     // reset username and password
-    //     if ($request->resetAccount == "on") {
-    //         $updateArr['username'] = UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId;
-    //         $updateArr['password'] = Hash::make(UserRoleEnum::getRoleForAuthentication((int)$updateArr['role']) . $userId);
-    //     }
-
-    //     $this->model
-    //         ->where('id', $userId)
-    //         ->update(
-    //             $updateArr
-    //         );
-
-    //     session()->put('success', 'Cập nhật người dùng thành công');
-    //     return redirect()->route("admin.$this->table.index");
-    // }
-
     public function resetAccount($userId)
     {
         $updateArr = [];
         $userRole = $this->model->where('id', $userId)->value('role');
 
-        $updateArr['username'] = UserRoleEnum::getRoleForAuthentication((int)$userRole) . $userId;
-        $updateArr['password'] = Hash::make(UserRoleEnum::getRoleForAuthentication((int)$userRole) . $userId);
+        $query = $this->model
+            ->where('role', $userRole)
+            ->with(
+                [
+                    'lecturer',
+                    'student',
+                    'eao_staff',
+                ]
+            )
+            ->first();
+
+        if ($userRole === UserRoleEnum::ADMIN || $userRole === UserRoleEnum::EAO_STAFF) {
+            $email = $query->eao_staff->email;
+            $birthday = createPasswordByBirthday($query->eao_staff->birthday);
+        } else if ($userRole === UserRoleEnum::LECTURER) {
+            $email = $query->lecturer->email;
+            $birthday = createPasswordByBirthday($query->lecturer->birthday);
+        } else if ($userRole === UserRoleEnum::STUDENT) {
+            $email = $query->student->email;
+            $birthday = createPasswordByBirthday($query->student->birthday);
+        }
+
+        $updateArr['username'] = $email;
+        $updateArr['password'] = Hash::make($birthday);
 
         $this->model
             ->where('id', $userId)
@@ -197,19 +121,6 @@ class UserController extends Controller
 
         session()->put('success', 'Cập nhật người dùng thành công');
         return redirect()->route("admin.$this->table.index");
-    }
-
-    public function importCSV(Request $request): JsonResponse
-    {
-        DB::beginTransaction();
-        try {
-            Excel::import(new UsersImport, $request->file('file'));
-            DB::commit();
-            return $this->successResponse();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->errorResponse($th->getMessage());
-        }
     }
 
     public function destroy($userId)

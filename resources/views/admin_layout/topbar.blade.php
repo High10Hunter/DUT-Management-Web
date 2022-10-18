@@ -18,7 +18,7 @@
                         </span>
                         <span>
                             <span class="account-user-name">
-                                {{ auth()->user()->name }}
+                                {{ auth()->user()->eao_staff->name }}
                             </span>
                             <span class="account-position">
                                 {{ auth()->user()->role_name }}

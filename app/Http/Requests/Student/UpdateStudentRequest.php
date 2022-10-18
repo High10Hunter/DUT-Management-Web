@@ -13,7 +13,7 @@ class UpdateStudentRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAdmin() || isEAOStaff();;
+        return isAdmin() || isEAOStaff();
     }
 
     /**
@@ -32,20 +32,16 @@ class UpdateStudentRequest extends FormRequest
             ],
             'email' => [
                 'email',
-                'nullable',
+                'required',
             ],
             'phone_number' => [
                 'string',
-                'nullable',
+                'required',
                 'min:10',
                 'max:20',
             ],
             'gender' => [
                 'required',
-            ],
-            'avatar' => [
-                'nullable',
-                'image',
             ],
             'birthday' => [
                 'required',

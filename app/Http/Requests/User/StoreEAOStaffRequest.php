@@ -37,20 +37,16 @@ class StoreEAOStaffRequest extends FormRequest
             ],
             'email' => [
                 'email',
-                'nullable',
+                'required',
             ],
             'phone_number' => [
                 'string',
-                'nullable',
+                'required',
                 'min:10',
                 'max:20',
             ],
             'gender' => [
                 'required',
-            ],
-            'avatar' => [
-                'nullable',
-                'image',
             ],
             'birthday' => [
                 'required',

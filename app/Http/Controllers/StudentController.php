@@ -186,49 +186,9 @@ class StudentController extends Controller
         $updateArr = [];
         $updateArr = $request->validated();
 
-        if ($request->file('new_avatar')) {
-            //remove old image
-            if (!is_null($request->old_avatar))
-                //Storage:: get into 'storage/app' path
-                Storage::delete('public/' . $request->old_avatar);
-
-            //upload new avatar
-            $path = $request->file('new_avatar')->store(
-                'avatars/users',
-                'public'
-            );
-
-            //move new avatar to userID folder
-            $userId = $this->model
-                ->where('id', $studentId)
-                ->value('user_id');
-
-            $newPath = moveAvatarToUserIDFolderWhenUpdate(
-                $userId,
-                $path,
-                'public/avatars/users/',
-                'avatars/users/'
-            );
-
-            $updateArr['avatar'] = $newPath;
-        } else
-            $updateArr['avatar'] = $request->old_avatar;
-
         $this->model
             ->where('id', $studentId)
             ->update($updateArr);
-
-        $userId = $this->model->where('id', $studentId)->value('user_id');
-
-        User::query()
-            ->where('id', $userId)
-            ->update([
-                'name' => $request->name,
-                'gender' => $request->gender,
-                'birthday' => $request->birthday,
-                'email' => $request->email,
-                'phone_number' => $request->phone_number,
-            ]);
 
         session()->put('success', 'Cập nhật thông tin thành công');
         return redirect()->route("admin.$this->table.index");

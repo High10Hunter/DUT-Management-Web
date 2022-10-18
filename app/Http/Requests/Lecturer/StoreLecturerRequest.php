@@ -33,6 +33,12 @@ class StoreLecturerRequest extends FormRequest
             'faculty_id' => [
                 'required',
             ],
+            'phone_number' => [
+                'string',
+                'required',
+                'min:10',
+                'max:20',
+            ],
             'status' => []
         ];
 
