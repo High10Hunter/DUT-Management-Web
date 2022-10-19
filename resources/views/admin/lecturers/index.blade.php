@@ -72,7 +72,6 @@
                                     <th>Email</th>
                                     <th>Số điện thoại</th>
                                     <th>Khoa</th>
-                                    <th>Tình trạng</th>
                                     <th>Chỉnh sửa</th>
                                 </tr>
                             </thead>
@@ -113,7 +112,6 @@
                                                 <i class="dripicons-wrong"></i>
                                             @endif
                                         </td>
-                                        <td>{{ $each->status_name }}</td>
                                         <td>
                                             <a href="{{ route('admin.lecturers.edit', ['lecturer' => $each->id]) }}">
                                                 <button type="button" class="btn btn-info"><i class="mdi mdi-pen"></i>

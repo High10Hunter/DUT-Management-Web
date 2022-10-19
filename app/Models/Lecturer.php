@@ -29,14 +29,6 @@ class Lecturer extends Model
         return ($this->gender === 1) ? 'Nam' : 'Nữ';
     }
 
-    public function getStatusNameAttribute(): string
-    {
-        if ($this->status === UserStatusEnum::ACTIVE)
-            return 'Hoạt động';
-        else if ($this->status === UserStatusEnum::OFF)
-            return 'Nghỉ';
-    }
-
     public function getAgeAttribute()
     {
         return date_diff(date_create($this->birthday), date_create())->y;
