@@ -64,7 +64,7 @@
                                     <th>Giảng viên</th>
                                     <th>Lịch học</th>
                                     <th>Tiết bắt đầu - Tiết kết thúc</th>
-                                    <th>Thời gian bắt đầu bắt đầu</th>
+                                    <th>Thời gian bắt đầu</th>
                                     <th>Số buổi học</th>
                                     <th>Trạng thái</th>
                                     <th>Chỉnh sửa</th>
