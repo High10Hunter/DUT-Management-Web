@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EAOStaffController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ModuleController;
@@ -100,5 +101,17 @@ Route::group(
         Route::post('/create', [LecturerController::class, 'store'])->name('store');
         Route::get('/edit/{lecturer}', [LecturerController::class, 'edit'])->name('edit');
         Route::put('/edit/{lecturer}', [LecturerController::class, 'update'])->name('update');
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'exams',
+        'as' => 'exams.',
+    ],
+    static function () {
+        Route::get('/', [ExamController::class, 'index'])->name('index');
+        Route::get('/create', [ExamController::class, 'create'])->name('create');
+        Route::get('/getExams', [ExamController::class, 'getExams'])->name('get_exams');
     }
 );

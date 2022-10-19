@@ -45,7 +45,7 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="apps-chat.html" class="side-nav-link">
+                        <a href="{{ route('admin.exams.index') }}" class="side-nav-link">
                             <i class="mdi mdi-calendar-month"></i>
                             <span> Xếp lịch thi </span>
                         </a>

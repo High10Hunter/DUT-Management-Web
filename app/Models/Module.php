@@ -144,6 +144,10 @@ class Module extends Model
                 "start" => $each['begin_date']->format('Y-m-d') . ' ' . $each['start_slot'],
                 "end" => $each['begin_date']->format('Y-m-d') . ' ' . $each['end_slot'],
                 "color" => $each['color'],
+                'extendedProps' => [
+                    'start' => Carbon::parse($each['start_slot'])->format('H:i'),
+                    'end' => Carbon::parse($each['end_slot'])->format('H:i'),
+                ]
             ];
         }, $schedules);
 

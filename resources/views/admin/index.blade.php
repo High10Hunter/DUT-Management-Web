@@ -104,7 +104,7 @@
                             <div class="card">
                                 <div class="card-body" style="background-color:rgb(227, 34, 227)">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-white">
+                                        <a href="{{ route('admin.exams.index') }}" class="stretched-link text-white">
                                             <i class="mdi mdi-calendar-month"></i>
                                             Xếp lịch thi
                                         </a>
@@ -124,7 +124,8 @@
                             <div class="card">
                                 <div class="card-body" style="background-color:rgba(30, 8, 232, 0.953)">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="{{ route('admin.students.index') }}" class="stretched-link text-white">
+                                        <a href="{{ route('admin.students.index') }}"
+                                            class="stretched-link text-white">
                                             <i class="mdi mdi-school"></i>
                                             Quản lý sinh viên
                                         </a>
