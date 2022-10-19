@@ -15,22 +15,19 @@ class CreateExamsTable extends Migration
     {
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_id')->constrained();
-            $table->foreignId('subject_id')->constrained();
+            $table->foreignId('module_id')->constrained();
             $table->date('date');
             $table->smallInteger('type')->default(0);
+            $table->smallInteger('start_slot');
             $table->unsignedBigInteger('proctor_id');
             $table->foreign('proctor_id')->references('id')->on('lecturers');
-            $table->unsignedBigInteger('examiner_id');
+            $table->unsignedBigInteger('examiner_id')->nullable();
             $table->foreign('examiner_id')->references('id')->on('lecturers');
             $table->unique([
-                'class_id',
-                'subject_id',
+                'module_id',
                 'date',
                 'type'
             ]);
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 
