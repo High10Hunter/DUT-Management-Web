@@ -51,6 +51,20 @@
                 },
                 eventDisplay: "block",
                 selectable: true,
+
+                eventDidMount: function(info) {
+                    console.log(info.view.start);
+                    $(info.el).popover({
+                        title: info.event.title,
+                        placement: 'top',
+                        trigger: 'hover',
+                        html: true,
+                        content: 'Thời gian dạy: ' + info.event.extendedProps.start +
+                            ' - ' + info.event.extendedProps.end,
+                        container: 'body'
+                    });
+                },
+
             });
             calendar.render();
         });
