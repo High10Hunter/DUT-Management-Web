@@ -40,7 +40,7 @@
                 dayMaxEventRows: true,
                 views: {
                     timeGrid: {
-                        dayMaxEventRows: 3,
+                        dayMaxEventRows: 5,
                         eventMaxStack: 2,
                     }
                 },

@@ -12,11 +12,12 @@ class Exam extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'id',
         'module_id',
         'date',
         'type',
+        'start_slot',
         'proctor_id',
-        'examiner_id'
     ];
 
     public $timestamps = false;
@@ -29,11 +30,6 @@ class Exam extends Model
     public function proctor(): BelongsTo
     {
         return $this->belongsTo(Lecturer::class, 'proctor_id');
-    }
-
-    public function examiner(): BelongsTo
-    {
-        return $this->belongsTo(Lecturer::class, 'examiner_id');
     }
 
     public function getExamDateAttribute()
@@ -57,7 +53,6 @@ class Exam extends Model
                     $q->with('subject:id,name');
                 },
                 'proctor:id,name',
-                'examiner:id,name',
             ])
             ->get();
 
@@ -67,14 +62,12 @@ class Exam extends Model
             $date = $each->date;
             $type = $each->type_name;
             $proctorName = $each->proctor->name;
-            $examinerName = $each->examiner->name;
 
             $exams[] = [
                 'title' => $moduleName,
                 'start' => $date . ' ' . $startTime,
                 'extendedProps' => [
                     'proctorName' => $proctorName,
-                    'examinerName' => $examinerName,
                     'type' => $type,
                     'startTime' => Carbon::parse($startTime)->format('H:i'),
                 ]

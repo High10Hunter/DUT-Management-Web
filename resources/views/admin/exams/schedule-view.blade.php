@@ -1,7 +1,8 @@
 @extends('admin_layout.master')
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+    <link
+        href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
     <style>
         .fc-event {
             cursor: context-menu;
@@ -16,9 +17,64 @@
             Quay lại
         </button>
     </a>
+
+    {{-- create new exam modal --}}
+    <div id="create-exam-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Tạo lịch thi mới</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="new-exam-schedule" method="POST">
+                        @csrf
+                        Chọn học phần
+                        <input type="hidden" id="exam-date" name="date" >
+                        <select name="module_id[]" class="form-control select2" data-toggle="select2" multiple="multiple">
+                            @foreach ($modules as $module)
+                            <option value="{{ $module->id }}">
+                                {{ $module->name }}
+                            </option> @endforeach
+                        </select>
+                        Hình thức
+                        <select name="type" class="form-control">
+                            <option value="" selected disabled></option>
+                            <option value="0">Lý thuyết</option>
+                            <option value="1">Thực hành</option>
+                        </select>
+                        Tiết bắt đầu
+                        <select name="start_slot" class="form-control">
+                            <option value="" selected disabled></option>
+                            @for ($i = 1; $i <= 9; $i++)
+<option value="{{ $i }}">
+                                {{ $i }}
+                            </option>
+@endfor
+                        </select>
+                        Giám thị
+                        <select name="proctor_id" class="form-control">
+                            <option value="" selected disabled></option>
+                            @foreach ($lecturers as $lecturer)
+<option value="{{ $lecturer->id }}">
+                                    {{ $lecturer->name }}
+                                </option>
+@endforeach
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Tạo lịch thi</button>
+                    </div>
+                    <input type="hidden" name="reset">
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 @endsection
 @push('js')
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/locales-all.js"></script>
     <script>
         $(document).ready(function() {
@@ -75,25 +131,36 @@
                             <li>
                                 Giám thị: ${info.event.extendedProps.proctorName}
                             </li>
-                            <li>
-                                Người chấm: ${info.event.extendedProps.examinerName}         
-                            </li>
                         </ul>
                         `,
                         container: 'body'
                     });
                 },
 
-                //trigger insert exams modal
+                //trigger create exam modal
                 dateClick: function(info) {
-                    // console.log(info.dateStr);
-                },
-
-                eventClick: function(info) {
-                    console.log(info.event.extendedProps);
+                    $("#create-exam-modal").modal('show');
+                    $("#exam-date").val(info.dateStr);
                 },
             });
             calendar.render();
+
+            $("#new-exam-schedule").submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('admin.exams.store') }}",
+                    data: $(this).serialize(),
+                    dataType: "json",
+                    success: function(response) {
+                        console.log(response);
+                        calendar.refetchEvents();
+                        $("#create-exam-modal").modal('hide');
+                        //reset modal form
+                        $("#new-exam-schedule > select").val(false).trigger('change');
+                    }
+                });
+            });
         });
     </script>
 @endpush

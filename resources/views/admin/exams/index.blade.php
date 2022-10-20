@@ -47,7 +47,6 @@
                                         <th>Hình thức</th>
                                         <th>Tiết bắt đầu</th>
                                         <th>Giám thị</th>
-                                        <th>Người chấm</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,7 +57,6 @@
                                             <td>{{ $each->type_name }}</td>
                                             <td>{{ $each->start_slot }}</td>
                                             <td>{{ $each->proctor->name }}</td>
-                                            <td>{{ $each->examiner->name }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
