@@ -139,7 +139,8 @@
                             @endforeach
                             @if (count($periodsDate) == $module->lessons)
                                 <td>
-                                    @if ($student->not_attended_count + $student->late_count * 0.5 <= count($periodsDate) * 0.5)
+                                    @if (getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) <=
+                                        count($periodsDate) * $configs['exam_ban_coefficient'])
                                         <i class="mdi mdi-check-bold text-success"></i>
                                     @else
                                         <i class="dripicons-cross text-danger"></i>
