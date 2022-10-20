@@ -21,8 +21,6 @@ class CreateExamsTable extends Migration
             $table->smallInteger('start_slot');
             $table->unsignedBigInteger('proctor_id');
             $table->foreign('proctor_id')->references('id')->on('lecturers');
-            $table->unsignedBigInteger('examiner_id')->nullable();
-            $table->foreign('examiner_id')->references('id')->on('lecturers');
             $table->unique([
                 'module_id',
                 'date',
