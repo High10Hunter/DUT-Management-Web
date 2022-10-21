@@ -14,13 +14,16 @@ class CreateExamsTable extends Migration
     public function up()
     {
         Schema::create('exams', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->index('id');
+            $table->dropPrimary('id');
             $table->foreignId('module_id')->constrained();
             $table->date('date');
             $table->smallInteger('type')->default(0);
             $table->smallInteger('start_slot');
             $table->unsignedBigInteger('proctor_id');
             $table->foreign('proctor_id')->references('id')->on('lecturers');
+            $table->primary(['id', 'module_id']);
             $table->unique([
                 'module_id',
                 'date',
