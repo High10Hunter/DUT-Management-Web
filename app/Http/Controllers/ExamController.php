@@ -86,6 +86,7 @@ class ExamController extends Controller
 
     public function store(StoreExamRequest $request)
     {
+        DB::beginTransaction();
         try {
             $moduleIds = $request->safe()->module_id;
             $date = $request->safe()->date;
@@ -93,47 +94,31 @@ class ExamController extends Controller
             $startSlot = $request->safe()->start_slot;
             $proctorId = $request->safe()->proctor_id;
 
-            foreach ($moduleIds as $moduleId) {
-                $examId = Exam::create([
-                    'module_id' => $moduleId,
-                    'date' => $date,
-                    'type' => $type,
-                    'start_slot' => $startSlot,
-                    'proctor_id' => $proctorId,
-                ])->id;
+            Exam::storeExams(
+                $moduleIds,
+                $date,
+                $type,
+                $startSlot,
+                $proctorId
+            );
 
-                $module = Module::getModule($moduleId);
-                $periods = $module->periods()->get();
-                $periodsId = $periods->pluck('id');
-                $configs = Config::getAndCache();
+            $modules = Module::query()
+                ->whereDoesntHave('exam')
+                ->where('status', 1)
+                ->get([
+                    'id',
+                    'name',
+                ]);
 
-                $query = Student::query()
-                    ->getStudentsCanTakeExams($moduleId, $periodsId);
-                $students = $query->get();
-
-                $examStudents = [];
-                foreach ($students as $student) {
-                    if (
-                        getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) <=
-                        count($periodsId) * $configs['exam_ban_coefficient']
-                    ) {
-                        $examStudents[] = $student->id;
-                    }
-                }
-
-                foreach ($examStudents as $each) {
-                    ExamAttendanceDetail::insert([
-                        'exam_id' => $examId,
-                        'student_id' => $each,
-                    ]);
-                }
-            }
+            DB::commit();
 
             return response()->json([
+                'data' => $modules,
                 'status' => true,
-                'message' => 'Booking created successfully',
+                'message' => 'Tạo thành công lịch thi',
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $th->getMessage(),

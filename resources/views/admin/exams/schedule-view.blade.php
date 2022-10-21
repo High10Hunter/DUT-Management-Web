@@ -32,7 +32,7 @@
                         @csrf
                         Chọn học phần
                         <input type="hidden" id="exam-date" name="date" >
-                        <select name="module_id[]" class="form-control select2" data-toggle="select2" multiple="multiple">
+                        <select id="select-modules" name="module_id[]" class="form-control select2" data-toggle="select2" multiple="multiple">
                             @foreach ($modules as $module)
                             <option value="{{ $module->id }}">
                                 {{ $module->name }}
@@ -77,6 +77,17 @@
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.9.0/locales-all.js"></script>
     <script>
+        function recreateSelectModules(modules) {
+            let html = ``;
+            modules.forEach(element => {
+                html += `<option value="${element.id}">
+                    ${element.name}
+                </option>`
+            });
+
+            $("#select-modules").html(html);
+        }
+
         $(document).ready(function() {
             let calendarEl = document.getElementById('calendar');
             let calendar = new FullCalendar.Calendar(calendarEl, {
@@ -153,11 +164,27 @@
                     data: $(this).serialize(),
                     dataType: "json",
                     success: function(response) {
-                        console.log(response);
                         calendar.refetchEvents();
                         $("#create-exam-modal").modal('hide');
                         //reset modal form
                         $("#new-exam-schedule > select").val(false).trigger('change');
+
+                        $.toast({
+                            heading: response.message,
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            stack: false,
+                        });
+
+                        recreateSelectModules(response.data);
+                    },
+                    error: function(response) {
+                        $.toast({
+                            heading: "Không tạo được lịch thi",
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            stack: false,
+                        });
                     }
                 });
             });
