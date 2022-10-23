@@ -18,13 +18,6 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="apps-chat.html" class="side-nav-link">
-                            <i class="mdi mdi-file-document-edit"></i>
-                            <span> Quản lý điểm </span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
                         <a href="#" class="side-nav-link" aria-expanded="true">
                             <i class="mdi mdi-folder-text"></i>
                             <span> Giảng dạy </span>

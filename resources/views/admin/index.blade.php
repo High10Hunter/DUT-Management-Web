@@ -33,8 +33,9 @@
                 <div class="content">
 
                     <div class="row mb-5"></div>
+                    <div class="row mb-5"></div>
 
-                    <div class="row d-flex justify-content-center">
+                    {{-- <div class="row d-flex justify-content-center">
                         <div class="col-md-3">
                             <div class="card">
                                 <div class="card-body bg-primary">
@@ -47,7 +48,7 @@
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="row">
                         <div class="col-lg-2">
@@ -55,12 +56,11 @@
 
                         <div class="col-md-6 col-lg-4">
                             <div class="card">
-                                <div class="card-body" style="background-color:rgb(237, 237, 9)">
+                                <div class="card-body bg-secondary">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="{{ route('admin.courses.index') }}"
-                                            class="stretched-link text-black-50">
-                                            <i class="uil-invoice"></i>
-                                            Quản lý khoá
+                                        <a href="{{ route('admin.users.index') }}" class="stretched-link text-white">
+                                            <i class="dripicons-user"></i>
+                                            Quản lý người dùng
                                         </a>
                                     </h3>
                                 </div> <!-- end card-body -->
@@ -69,11 +69,11 @@
 
                         <div class="col-md-6 col-lg-4">
                             <div class="card">
-                                <div class="card-body" style="background-color:rgb(82, 181, 84)">
+                                <div class="card-body bg-primary">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="{{ route('admin.subjects.index') }}" class="stretched-link text-white">
-                                            <i class="mdi mdi-folder-text"></i>
-                                            Quản lý môn - Chuyên ngành
+                                        <a href="{{ route('admin.students.index') }}" class="stretched-link text-white">
+                                            <i class="mdi mdi-school"></i>
+                                            Quản lý sinh viên
                                         </a>
                                     </h3>
                                 </div> <!-- end card-body -->
@@ -120,33 +120,34 @@
                     <div class="row">
                         <div class="col-lg-2">
                         </div>
+
                         <div class="col-md-6 col-lg-4">
                             <div class="card">
-                                <div class="card-body" style="background-color:rgba(30, 8, 232, 0.953)">
+                                <div class="card-body" style="background-color:rgb(237, 237, 9)">
                                     <h3 class="card-title" style="text-align:center">
-                                        <a href="{{ route('admin.students.index') }}"
+                                        <a href="{{ route('admin.courses.index') }}"
+                                            class="stretched-link text-black-50">
+                                            <i class="uil-invoice"></i>
+                                            Quản lý khoá
+                                        </a>
+                                    </h3>
+                                </div> <!-- end card-body -->
+                            </div> <!-- end card -->
+                        </div> <!-- end col-->
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card">
+                                <div class="card-body" style="background-color:rgb(82, 181, 84)">
+                                    <h3 class="card-title" style="text-align:center">
+                                        <a href="{{ route('admin.subjects.index') }}"
                                             class="stretched-link text-white">
-                                            <i class="mdi mdi-school"></i>
-                                            Quản lý sinh viên
+                                            <i class="mdi mdi-folder-text"></i>
+                                            Quản lý môn - Chuyên ngành
                                         </a>
                                     </h3>
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div> <!-- end col-->
-
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card">
-                                <div class="card-body" style="background-color:rgba(81, 4, 49, 0.719)">
-                                    <h3 class="card-title" style="text-align:center">
-                                        <a href="#" class="stretched-link text-white">
-                                            <i class="mdi mdi-file-document-edit"></i>
-                                            Quản lý điểm
-                                        </a>
-                                    </h3>
-                                </div> <!-- end card-body -->
-                            </div> <!-- end card -->
-                        </div> <!-- end col-->
-
 
                         <div class="col-lg-2">
                         </div>
