@@ -28,6 +28,24 @@
         <dd class="col-sm-6 ">
             {{ $module->name }}
         </dd>
+
+        <div class="col-lg-8 mt-3">
+            <ul>
+                <li>
+                    Đi muộn = <strong class="text-secondary"> vắng 0.5 buổi</strong>
+                </li>
+                <li>
+                    Số buổi phép tối đa: <strong class="text-primary"> 3 buổi</strong>
+                </li>
+                <li>
+                    Sinh viên vắng <strong class="text-danger"> quá 50% số buổi học </strong> sẽ không được thi
+                    kết
+                    thúc học
+                    phần
+                </li>
+            </ul>
+        </div>
+
         <em class="pl-5">Ký hiệu:</em>
         <div class="row float-right">
             <div class="col-lg-12">
