@@ -65,7 +65,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary">Tạo lịch thi</button>
+                        <button id="create-exam-btn" type="submit" class="btn btn-primary">Tạo lịch thi</button>
                     </div>
                     <input type="hidden" name="reset">
                 </form>
@@ -158,6 +158,11 @@
 
             $("#new-exam-schedule").submit(function(event) {
                 event.preventDefault();
+
+                $('#create-exam-btn').prop('disabled', true);
+                $('#create-exam-btn').html("<span role='btn-status'></span>Đang tạo");
+                $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
+
                 $.ajax({
                     type: "POST",
                     url: "{{ route('admin.exams.store') }}",
