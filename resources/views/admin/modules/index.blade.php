@@ -345,7 +345,6 @@
                             <tbody>`;
 
                             response.data.forEach(function(each) {
-                                console.log(each);
                                 table +=
                                     `
                                 <tr class="text-center">

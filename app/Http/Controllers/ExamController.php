@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\TimeSlotEnum;
+use App\Exports\ExamStudentsExport;
 use App\Http\Requests\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Http\Requests\UpdateExamRequest;
-use App\Imports\ExamsImport;
-use App\Models\Config;
-use App\Models\ExamAttendanceDetail;
 use App\Models\Lecturer;
 use App\Models\Module;
-use App\Models\Student;
-use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ExamController extends Controller
 {
@@ -126,15 +121,37 @@ class ExamController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Exam  $exam
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Exam $exam)
+    public function getStudentsInExam(Request $request): JsonResponse
     {
-        //
+        try {
+            $moduleId = $request->get('module_id');
+            $students = Exam::find($moduleId)
+                ->students()
+                ->with('class:id,name')
+                ->get();
+
+            return $this->successResponse($students, "Success");
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage());
+        }
+    }
+
+    public function exportCSV(Request $request)
+    {
+        $moduleId = $request->input('module_id');
+        $moduleName = $request->input('module_name');
+        $moduleDate = $request->input('module_date');
+
+        $moduleDateArr = explode('-', $moduleDate);
+
+        $moduleDate = $moduleDateArr[2] . '-' . $moduleDateArr[1] . '-' . $moduleDateArr[0];
+
+        $fileName = "DSSV" .  ' - ' . $moduleName . ' ' . $moduleDate;
+        $fileExtension = ".xlsx";
+
+        $fileName .= $fileExtension;
+
+        return (new ExamStudentsExport($moduleId))->download($fileName);
     }
 
     /**
@@ -155,7 +172,7 @@ class ExamController extends Controller
      * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateExamRequest $request, Exam $exam)
+    public function update(Request $request, Exam $exam)
     {
         //
     }

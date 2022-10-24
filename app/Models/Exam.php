@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Exam extends Model
 {
@@ -30,6 +31,11 @@ class Exam extends Model
     public function proctor(): BelongsTo
     {
         return $this->belongsTo(Lecturer::class, 'proctor_id');
+    }
+
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'exam_attendance_details');
     }
 
     public function getExamDateAttribute()

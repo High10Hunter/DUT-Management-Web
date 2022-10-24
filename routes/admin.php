@@ -114,5 +114,7 @@ Route::group(
         Route::get('/create', [ExamController::class, 'create'])->name('create');
         Route::post('/create', [ExamController::class, 'store'])->name('store');
         Route::get('/getExams', [ExamController::class, 'getExams'])->name('get_exams');
+        Route::post('/get_students', [ExamController::class, 'getStudentsInExam'])->name('get_students');
+        Route::post('/export_csv', [ExamController::class, 'exportCSV'])->name('export_csv');
     }
 );

@@ -47,6 +47,7 @@
                                         <th>Hình thức</th>
                                         <th>Tiết bắt đầu</th>
                                         <th>Giám thị</th>
+                                        <th>Danh sách</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -57,6 +58,15 @@
                                             <td>{{ $each->type_name }}</td>
                                             <td>{{ $each->start_slot }}</td>
                                             <td>{{ $each->proctor->name }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-secondary student-list"
+                                                    data-toggle="modal" data-target="#student-list-modal"
+                                                    data-module-id="{{ $each->id }}"
+                                                    data-module-name="{{ $each->module->name }}"
+                                                    data-module-date="{{ $each->date }}">
+                                                    <i class="mdi mdi-format-list-bulleted-triangle"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -72,6 +82,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Student list modal -->
+    <div class="modal fade" id="student-list-modal" tabindex="-1" role="dialog" aria-labelledby="scrollableModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-student-list-title" id="scrollableModalTitle">Danh sách sinh viên</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="students-in-module" class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <form action="{{ route('admin.exams.export_csv') }}" method="POST" class="form-group ml-2">
+                        @csrf
+                        <input type="hidden" name="module_id">
+                        <input type="hidden" name="module_name">
+                        <input type="hidden" name="module_date">
+                        <button id="export-csv-btn" class="btn btn-primary">
+                            <i class="mdi mdi-file-excel"></i> Xuất file Excel
+                        </button>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 @endsection
 @push('js')
     <script>
@@ -82,8 +121,65 @@
             }
         });
 
-        $(document).ready(function() {
+        function getStudents() {
+            $(".student-list").click(function() {
+                let moduleId = $(this).data('module-id');
+                let moduleName = $(this).data('module-name');
+                let moduleDate = $(this).data('module-date');
 
+                $("input[name='module_id']").val(moduleId);
+                $("input[name='module_name']").val(moduleName);
+                $("input[name='module_date']").val(moduleDate);
+
+                $.ajax({
+                    type: "POST",
+                    url: '{{ route('admin.exams.get_students') }}',
+                    data: {
+                        'module_id': moduleId
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        $(".modal-student-list-title").text(moduleName);
+                        let table =
+                            `<table class="table table-hover table-centered mb-0">
+                            <thead class="thead-light">
+                                <tr class="text-center">
+                                    <th>Mã SV</th>
+                                    <th>Tên</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Lớp</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                        response.data.forEach(function(each) {
+                            table +=
+                                `
+                                <tr class="text-center">
+                                    <td>${each.student_code}</td>
+                                    <td>${each.name}</td>
+                                    <td>${each.email}</td>
+                                    <td>${each.phone_number}</td>
+                                    <td>${each.class.name}</td>
+                                </tr>
+                                `
+                        });
+
+                        table +=
+                            `
+                            </tbody>
+                            </table>
+                            `
+                        $("#students-in-module").html(table);
+                    }
+                });
+            });
+        }
+
+
+        $(document).ready(function() {
+            getStudents();
         });
     </script>
 @endpush
