@@ -47,7 +47,7 @@ class Exam extends Model
     public static function getExams()
     {
         $exams = [];
-        $data = Exam::query()
+        $data = self::query()
             ->with([
                 'module' => function ($q) {
                     $q->with('subject:id,name');
@@ -134,56 +134,58 @@ class Exam extends Model
         $startSlot,
         $proctorId
     ) {
-        $checkExistModule = self::query()
-            ->where('module_id', $moduleIds[0])
-            ->get();
+        foreach ($moduleIds as $moduleId) {
+            $checkExistModule = self::query()
+                ->where('module_id', $moduleId)
+                ->value('id');
 
-        if (isset($checkExistModule)) {
-            dd("Không tạo được lịch thi");
-        } else {
-            $examId = Exam::create([
-                'module_id' => $moduleIds[0],
+            if (isset($checkExistModule)) {
+                dd("Không tạo được lịch thi");
+            }
+        }
+
+        $examId = self::create([
+            'module_id' => $moduleIds[0],
+            'date' =>  $date,
+            'type' => $type,
+            'start_slot' => $startSlot,
+            'proctor_id' => $proctorId,
+        ])->id;
+
+        for ($i = 0; $i < count($moduleIds); $i++) {
+            self::firstOrCreate([
+                'id' => $examId,
+                'module_id' => $moduleIds[$i],
                 'date' =>  $date,
                 'type' => $type,
                 'start_slot' => $startSlot,
                 'proctor_id' => $proctorId,
-            ])->id;
+            ]);
 
-            for ($i = 0; $i < count($moduleIds); $i++) {
-                Exam::firstOrCreate([
-                    'id' => $examId,
-                    'module_id' => $moduleIds[$i],
-                    'date' =>  $date,
-                    'type' => $type,
-                    'start_slot' => $startSlot,
-                    'proctor_id' => $proctorId,
+            $module = Module::getModule($moduleIds[$i]);
+            $periods = $module->periods()->get();
+            $periodsId = $periods->pluck('id');
+            $configs = Config::getAndCache();
+
+            $query = Student::query()
+                ->getStudentsCanTakeExams($moduleIds[$i], $periodsId);
+            $students = $query->get();
+
+            $examStudents = [];
+            foreach ($students as $student) {
+                if (
+                    getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) <=
+                    count($periodsId) * $configs['exam_ban_coefficient']
+                ) {
+                    $examStudents[] = $student->id;
+                }
+            }
+
+            foreach ($examStudents as $each) {
+                ExamAttendanceDetail::insert([
+                    'exam_id' => $examId,
+                    'student_id' => $each,
                 ]);
-
-                $module = Module::getModule($moduleIds[$i]);
-                $periods = $module->periods()->get();
-                $periodsId = $periods->pluck('id');
-                $configs = Config::getAndCache();
-
-                $query = Student::query()
-                    ->getStudentsCanTakeExams($moduleIds[$i], $periodsId);
-                $students = $query->get();
-
-                $examStudents = [];
-                foreach ($students as $student) {
-                    if (
-                        getTotalAbsentLessons($student->not_attended_count, $student->late_count, $configs['late_coefficient']) <=
-                        count($periodsId) * $configs['exam_ban_coefficient']
-                    ) {
-                        $examStudents[] = $student->id;
-                    }
-                }
-
-                foreach ($examStudents as $each) {
-                    ExamAttendanceDetail::insert([
-                        'exam_id' => $examId,
-                        'student_id' => $each,
-                    ]);
-                }
             }
         }
     }
