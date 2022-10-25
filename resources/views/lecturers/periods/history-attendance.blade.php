@@ -32,13 +32,14 @@
         <div class="col-lg-8 mt-3">
             <ul>
                 <li>
-                    Đi muộn = <strong class="text-secondary"> vắng 0.5 buổi</strong>
+                    Đi muộn = <strong class="text-secondary"> vắng {{ $configs['late_coefficient'] }} buổi</strong>
                 </li>
                 <li>
-                    Số buổi phép tối đa: <strong class="text-primary"> 3 buổi</strong>
+                    Số buổi phép tối đa: <strong class="text-primary"> {{ $configs['max_excused'] }} buổi</strong>
                 </li>
                 <li>
-                    Sinh viên vắng <strong class="text-danger"> quá 50% số buổi học </strong> sẽ không được thi
+                    Sinh viên vắng <strong class="text-danger"> quá {{ $configs['exam_ban_coefficient'] * 100 }}% số buổi
+                        học </strong> sẽ không được thi
                     kết
                     thúc học
                     phần
