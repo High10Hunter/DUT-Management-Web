@@ -58,7 +58,7 @@ class UserController extends Controller
             $query->where('status', (int)$selectedStatus);
         }
         if (!is_null($search)) {
-            $query->clone()
+            $query
                 ->whereHas('eao_staff', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
                 })
@@ -69,7 +69,6 @@ class UserController extends Controller
                     $q->where('name', 'like', '%' . $search . '%');
                 });
         }
-
         $data = $query->paginate(10)
             ->appends($request->all());
 
