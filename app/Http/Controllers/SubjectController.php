@@ -49,7 +49,7 @@ class SubjectController extends Controller
         }
 
         $majors = [];
-        if (!is_null($selectedCourse)) {
+        if (!is_null($selectedCourse) && is_null($selectedMajor)) {
             $classes = _Class::query()->clone()->with(['major:id,name'])
                 ->where('course_id', (int)$selectedCourse)->get();
             foreach ($classes as $class) {
@@ -60,42 +60,83 @@ class SubjectController extends Controller
             //change array to collection
             $majors = collect($majors);
 
-            if (!is_null($selectedMajor))
-                $selectedMajorName = Major::find($selectedMajor)->name;
-            else
-                $selectedMajorName = null;
+            $query = $this->model
+                ->whereRelation('majors', 'course_id', $selectedCourse);
+            $selectedMajorName = null;
 
-            if (!is_null($selectedMajor)) {
-                $query = Major::find((int)$selectedMajor)->subjects($selectedCourse);
-            } else {
-                $query = $this->model->clone()
-                    ->with(['majors:id,name']);
+
+            // if (!is_null($selectedMajor)) {
+            //     $query = Major::query()
+            //         ->where('id', $selectedMajor)
+            //         ->with([
+            //             'subjects' => function ($q) use ($selectedCourse) {
+            //                 $q->where('course_id', $selectedCourse);
+            //             }
+            //         ]);
+
+            //     $selectedMajorName = Major::find($selectedMajor)->name;
+            // } else {
+            //     $query = $this->model
+            //         ->whereRelation('majors', 'course_id', $selectedCourse);
+            //     $selectedMajorName = null;
+            // }
+        } else if (is_null($selectedCourse) && !is_null($selectedMajor)) {
+            $majors = Major::get([
+                'id',
+                'name'
+            ]);
+
+            $query = Major::find((int)$selectedMajor)->subjects($selectedCourse);
+            $selectedMajorName = Major::find($selectedMajor)->name;
+        } else if (!is_null($selectedCourse) && !is_null($selectedMajor)) {
+            $classes = _Class::query()->clone()->with(['major:id,name'])
+                ->where('course_id', (int)$selectedCourse)->get();
+            foreach ($classes as $class) {
+                if (in_array($class->major, $majors))
+                    continue;
+                $majors[] = $class->major;
             }
+            //change array to collection
+            $majors = collect($majors);
+
+            $query = Major::query()
+                ->where('id', $selectedMajor)
+                ->with([
+                    'subjects' => function ($q) use ($selectedCourse) {
+                        $q->where('course_id', $selectedCourse);
+                    }
+                ]);
+            $selectedMajorName = Major::find($selectedMajor)->name;
         } else {
             $majors = Major::get([
                 'id',
                 'name'
             ]);
-        }
+            $query = $this->model
+                ->with('majors');
 
-        if (!is_null($selectedMajor))
-            $selectedMajorName = Major::find($selectedMajor)->name;
-        else
             $selectedMajorName = null;
-
-        if (!is_null($selectedMajor)) {
-            $query = Major::find((int)$selectedMajor)->subjects($selectedCourse);
-        } else {
-            $query = $this->model->clone()
-                ->with(['majors:id,name']);
         }
+
+        // if (!is_null($selectedMajor)) {
+        //     $query = Major::find((int)$selectedMajor)->subjects($selectedCourse);
+        //     $selectedMajorName = Major::find($selectedMajor)->name;
+        // } else {
+        //     $query = $this->model->clone()
+        //         ->with(['majors:id,name']);
+        //     $selectedMajorName = null;
+        // }
 
         if (!is_null($search)) {
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $data = $query->orderBy('id', 'desc')->paginate(10)
-            ->appends($request->all());
+        if (is_null($selectedCourse)) {
+            $data = $query->orderBy('id', 'desc')->paginate(5)
+                ->appends($request->all());
+        } else {
+            $data = $query->orderBy('id', 'desc')->get();
+        }
 
         return view("admin.$this->table.index", [
             'data' => $data,

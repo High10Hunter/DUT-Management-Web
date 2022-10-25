@@ -84,7 +84,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($selectedCourse)
+                                @if ($selectedCourse && is_null($selectedMajor))
                                     @foreach ($data as $each)
                                         @foreach ($each->majors as $major)
                                             @if ($selectedCourse == $major->pivot->course_id)
@@ -98,8 +98,18 @@
                                             @endif
                                         @endforeach
                                     @endforeach
-                                @elseif ($selectedMajor)
+                                @elseif ($selectedMajor && is_null($selectedCourse))
                                     @foreach ($data as $each)
+                                        <tr class="text-center">
+                                            <td>{{ $each->id }}</td>
+                                            <td>{{ $each->name }}</td>
+                                            <td>{{ $selectedMajorName }}</td>
+                                            <td>{{ $each->pivot->number_of_credits }}</td>
+                                            <td>{{ $coursesArr[$each->pivot->course_id] }}</td>
+                                        </tr>
+                                    @endforeach
+                                @elseif(isset($selectedCourse) && isset($selectedMajor))
+                                    @foreach ($data[0]->subjects as $each)
                                         <tr class="text-center">
                                             <td>{{ $each->id }}</td>
                                             <td>{{ $each->name }}</td>
