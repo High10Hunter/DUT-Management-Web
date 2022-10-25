@@ -51,8 +51,12 @@ class StudyScheduleController extends Controller
     public function history()
     {
         $studentId = auth()->user()->student->id;
+        $currentDate = now()->format('Y-m-d');
+
         $modules = Module::query()
             ->whereRelation('students', 'student_id', $studentId)
+            ->orWhereDoesntHave('exam')
+            ->whereRelation('exam', 'date', '>', $currentDate)
             ->with(['subject:id,name'])
             ->get();
 
@@ -69,7 +73,11 @@ class StudyScheduleController extends Controller
         $periods = $module->periods()->get();
 
         $studentId = auth()->user()->student->id;
+        $currentDate = now()->format('Y-m-d');
+
         $modules = Module::query()
+            ->whereRelation('exam', 'date', '>', $currentDate)
+            ->orWhereDoesntHave('exam')
             ->whereRelation('students', 'student_id', $studentId)
             ->with(['subject:id,name'])
             ->get();
@@ -78,6 +86,7 @@ class StudyScheduleController extends Controller
 
         $periodsId = $periods->pluck('id');
         $periodsDate = $periods->pluck('period_date');
+
 
         $query = Student::query()
             ->where('id', $studentId)

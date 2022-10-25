@@ -30,8 +30,11 @@ class PeriodController extends Controller
     {
         $lecturerId = auth()->user()->lecturer->id;
         $currentWeekday = now()->isoFormat('E') + 1;
+        $currentDate = now()->format('Y-m-d');
 
         $modules = Module::query()
+            ->whereRelation('exam', 'date', '>', $currentDate)
+            ->orWhereDoesntHave('exam')
             ->with(['subject:id,name'])
             ->where(
                 [
@@ -61,6 +64,7 @@ class PeriodController extends Controller
         $lecturerId = auth()->user()->lecturer->id;
 
         $currentWeekday = now()->isoFormat('E') + 1;
+        $currentDate = now()->format('Y-m-d');
 
         $search = $request->get('q');
 
@@ -69,6 +73,8 @@ class PeriodController extends Controller
         $teachedLessons = $this->model->where('module_id', $moduleId)->count();
 
         $modules = Module::query()
+            ->whereRelation('exam', 'date', '>', $currentDate)
+            ->orWhereDoesntHave('exam')
             ->with(['subject:id,name'])
             ->where(
                 [
