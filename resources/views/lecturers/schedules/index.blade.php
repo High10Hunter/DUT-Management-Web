@@ -47,7 +47,7 @@
                 nowIndicator: true,
 
                 events: {
-                    url: '{{ route('lecturer.schedule_teaching.getSchedules') }}',
+                    url: '{{ route('lecturer.schedule_teaching.get_schedules') }}',
                 },
                 eventDisplay: "block",
                 selectable: true,
