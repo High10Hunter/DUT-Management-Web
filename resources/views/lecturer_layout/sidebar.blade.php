@@ -16,6 +16,13 @@
                             <span> Xem lịch dạy </span>
                         </a>
                     </li>
+
+                    <li class="side-nav-item">
+                        <a href="{{ route('lecturer.exam_proctoring.index') }}" class="side-nav-link">
+                            <i class="mdi mdi-calendar-check"></i>
+                            <span> Xem lịch coi thi </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <!-- Left Sidebar End -->

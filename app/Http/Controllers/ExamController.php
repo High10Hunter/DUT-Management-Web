@@ -154,6 +154,19 @@ class ExamController extends Controller
         return (new ExamStudentsExport($moduleId))->download($fileName);
     }
 
+    public function examProctoring()
+    {
+        return view('lecturers.exams.index');
+    }
+
+    public function getExamsForLecturer()
+    {
+        $lecturerId = auth()->user()->lecturer->id;
+        $exams = Exam::getExamsForLecturer($lecturerId);
+
+        return response()->json($exams);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
