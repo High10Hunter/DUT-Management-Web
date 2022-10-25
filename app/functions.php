@@ -33,47 +33,10 @@ if (!function_exists('isLecturer')) {
     }
 }
 
-if (!function_exists('moveAvatarToUserIDFolderWhenCreate')) {
-    function moveAvatarToUserIDFolderWhenCreate($userId, $storagePathPrefix, $tempPath, $newPathPrefixToStore): string
+if (!function_exists('isStudent')) {
+    function isStudent(): bool
     {
-        //create folder with userID
-        $userAvatarStoragePath = $storagePathPrefix . $userId;
-        Storage::makeDirectory($userAvatarStoragePath);
-
-        //take the avatar stored current path 
-        $oldPath = Storage::files($storagePathPrefix);
-
-        //get avatar name
-        $userAvatarName = explode('/', $tempPath)[2];
-        $newPath = $userAvatarStoragePath . '/' . $userAvatarName;
-
-        //move avatar to folder with userID
-        Storage::move($oldPath[0], $newPath);
-
-        // rename new path
-        $newPath = $newPathPrefixToStore . $userId . '/' . $userAvatarName;
-
-        return $newPath;
-    }
-}
-
-if (!function_exists('moveAvatarToUserIDFolderWhenUpdate')) {
-    function moveAvatarToUserIDFolderWhenUpdate($userId, $oldPathStore, $newPathPrefix, $newPathPrefixToStore): string
-    {
-        //get old avatar path
-        $oldPath = 'public/' . $oldPathStore;
-
-        //get avatar name
-        $userAvatarName = explode('/', $oldPathStore)[2];
-        $newPath = $newPathPrefix . $userId . '/' . $userAvatarName;
-
-        //move avatar to folder with userID
-        Storage::move($oldPath, $newPath);
-
-        // rename new path
-        $newPath = $newPathPrefixToStore . $userId . '/' . $userAvatarName;
-
-        return $newPath;
+        return (auth()->user()->role === UserRoleEnum::STUDENT);
     }
 }
 
@@ -115,6 +78,35 @@ if (!function_exists('checkWarningExam')) {
             $lateCoefficient
         );
         return ($totalAbsentLessons > $teachedLessons * (float)$examWarningCoefficient);
+    }
+}
+
+if (!function_exists('getRemainingAbsentDays')) {
+    function getRemainingAbsentDays(
+        $notAttendedCount,
+        $lateCount,
+        $lateCoefficient,
+        $examBanCoefficient,
+        $moduleLessons,
+        $teachedLessons
+    ) {
+        $totalAbsentLessons = getTotalAbsentLessons(
+            $notAttendedCount,
+            $lateCount,
+            $lateCoefficient
+        );
+
+        $possibleAbsentLessons = (float)$moduleLessons * $examBanCoefficient;
+        $remainingLessons = $moduleLessons - $teachedLessons;
+        $remainingAbsentDays = (float)$possibleAbsentLessons - (float)$totalAbsentLessons;
+
+        if ($remainingLessons <= $remainingAbsentDays)
+            return $remainingLessons;
+        else if ($remainingAbsentDays < 0)
+            return 0;
+        else {
+            return (int)$remainingAbsentDays;
+        }
     }
 }
 

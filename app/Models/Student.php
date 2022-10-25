@@ -120,6 +120,28 @@ class Student extends Model
             ]);
     }
 
+    public function scopeGetOneStudentHistoryAttendance($query, $studentId, $periodsId)
+    {
+        return $query
+            ->with([
+                'attendances' => function ($q) use ($periodsId, $studentId) {
+                    $q->whereIn('period_id', $periodsId);
+                    $q->where('student_id', $studentId);
+                },
+                'class:id,name',
+            ])
+            ->withCount([
+                'attendances as not_attended_count' => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::NOT_ATTENDED);
+                },
+                'attendances as late_count'  => function ($q) use ($periodsId) {
+                    $q->whereIn('period_id', $periodsId)
+                        ->where('status', PeriodAttendanceStatusEnum::LATE);
+                },
+            ]);
+    }
+
     public function scopeGetStudentsCanTakeExams($query, $moduleId, $periodsId)
     {
         return $query
