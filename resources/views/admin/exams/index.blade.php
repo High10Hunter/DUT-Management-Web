@@ -45,28 +45,77 @@
                                         <th>Tên lớp học phần</th>
                                         <th>Ngày thi</th>
                                         <th>Hình thức</th>
+                                        <th>Kiểu thi</th>
                                         <th>Tiết bắt đầu</th>
                                         <th>Giám thị</th>
                                         <th>Danh sách</th>
+                                        {{-- <th>Chỉnh sửa</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($data as $each)
+                                    @foreach ($data as $exams)
                                         <tr class="text-center">
-                                            <td>{{ $each->module->name . ' - ' . $each->module->subject->name }}</td>
-                                            <td>{{ $each->exam_date }}</td>
-                                            <td>{{ $each->type_name }}</td>
-                                            <td>{{ $each->start_slot }}</td>
-                                            <td>{{ $each->proctor->name }}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-secondary student-list"
-                                                    data-toggle="modal" data-target="#student-list-modal"
-                                                    data-module-id="{{ $each->id }}"
-                                                    data-module-name="{{ $each->module->name }}"
-                                                    data-module-date="{{ $each->date }}">
-                                                    <i class="mdi mdi-format-list-bulleted-triangle"></i>
-                                                </button>
-                                            </td>
+                                            @if (count($exams) == 1)
+                                                <td>{{ $exams[0]->module->name . ' - ' . $exams[0]->module->subject->name }}
+                                                </td>
+                                                <td>{{ $exams[0]->exam_date }}</td>
+                                                <td>{{ $exams[0]->type_name }}</td>
+                                                <td>Thi riêng</td>
+                                                <td>{{ $exams[0]->start_slot }}</td>
+                                                <td>{{ $exams[0]->proctor->name }}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-secondary student-list"
+                                                        data-toggle="modal" data-target="#student-list-modal"
+                                                        data-module-id="{{ $exams[0]->id }}"
+                                                        data-module-name="{{ $exams[0]->module->name }}"
+                                                        data-module-date="{{ $exams[0]->date }}">
+                                                        <i class="mdi mdi-format-list-bulleted-triangle"></i>
+                                                    </button>
+                                                </td>
+                                                {{-- <td>
+                                                    <button type="button" class="btn btn-info" data-toggle="modal"
+                                                        data-target="#standard-modal">
+                                                        <i class="mdi mdi-pencil"></i>
+                                                    </button>
+                                                </td> --}}
+                                            @else
+                                                <td>
+                                                    @for ($i = 0; $i < count($exams); $i++)
+                                                        @if ($i != count($exams) - 1)
+                                                            {{ $exams[$i]->module->name . ', ' }}
+                                                        @else
+                                                            {{ $exams[$i]->module->name . ' - ' }}
+                                                        @endif
+                                                    @endfor
+                                                    {{ $exams[0]->module->subject->name }}
+                                                </td>
+                                                <td>{{ $exams[0]->exam_date }}</td>
+                                                <td>{{ $exams[0]->type_name }}</td>
+                                                <td>Thi chung</td>
+                                                <td>{{ $exams[0]->start_slot }}</td>
+                                                <td>{{ $exams[0]->proctor->name }}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-secondary student-list"
+                                                        data-toggle="modal" data-target="#student-list-modal"
+                                                        data-module-id="{{ $exams[0]->id }}"
+                                                        data-module-name="
+                                                        @for ($i = 0; $i < count($exams) ; $i++)
+                                                        @if ($i != count($exams) - 1)
+                                                            {{ $exams[$i]->module->name . ', ' }}
+                                                        @else
+                                                            {{ $exams[$i]->module->name }}
+                                                        @endif @endfor"
+                                                        data-module-date="{{ $exams[0]->date }}">
+                                                        <i class="mdi mdi-format-list-bulleted-triangle"></i>
+                                                    </button>
+                                                </td>
+                                                {{-- <td>
+                                                    <button type="button" class="btn btn-info" data-toggle="modal"
+                                                        data-target="#standard-modal">
+                                                        <i class="mdi mdi-pencil"></i>
+                                                    </button>
+                                                </td> --}}
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -111,6 +160,28 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+
+    {{-- <!-- Edit exam modal -->
+    <div id="standard-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Modal Heading</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+     --}}
 @endsection
 @push('js')
     <script>
@@ -124,7 +195,13 @@
         function getStudents() {
             $(".student-list").click(function() {
                 let moduleId = $(this).data('module-id');
+
+                //remove blank spaces and '\n'
                 let moduleName = $(this).data('module-name');
+                moduleName = $(this).data('module-name');
+                moduleName = moduleName.split(" ").join("");
+                moduleName = moduleName.split("\n").join("");
+
                 let moduleDate = $(this).data('module-date');
 
                 $("input[name='module_id']").val(moduleId);
@@ -176,7 +253,6 @@
                 });
             });
         }
-
 
         $(document).ready(function() {
             getStudents();

@@ -49,7 +49,15 @@ class ExamController extends Controller
             });
         }
 
-        $data = $query->orderBy('id', 'desc')->paginate(10);
+        $data = $query->orderBy('id', 'desc')->get();
+        $exams = [];
+        foreach ($data as $each) {
+            $exams[$each->id][] = $each;
+        }
+        $exams = collect($exams);
+
+        $data = manuallyPaginate($exams, 10);
+
 
         return view("admin.$this->table.index", [
             'data' => $data,
@@ -140,11 +148,12 @@ class ExamController extends Controller
     public function exportCSV(Request $request)
     {
         $moduleId = $request->input('module_id');
+
         $moduleName = $request->input('module_name');
+        $moduleName = trim($moduleName);
+
         $moduleDate = $request->input('module_date');
-
         $moduleDateArr = explode('-', $moduleDate);
-
         $moduleDate = $moduleDateArr[2] . '-' . $moduleDateArr[1] . '-' . $moduleDateArr[0];
 
         $fileName = "DSSV" .  ' - ' . $moduleName . ' ' . $moduleDate;

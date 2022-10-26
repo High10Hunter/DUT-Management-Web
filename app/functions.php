@@ -3,6 +3,9 @@
 use App\Enums\UserRoleEnum;
 use App\Models\Config;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getRoleByKey')) {
@@ -118,5 +121,18 @@ if (!function_exists('createPasswordByBirthday')) {
         $birthdayPassword = implode('', $birthdayPassword);
 
         return $birthdayPassword;
+    }
+}
+
+if (!function_exists('manuallyPaginate')) {
+    function manuallyPaginate($items, $perPage = 3, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        $options = [
+            'path' => url()->current(),
+            'pageName' => 'page',
+        ];
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 }
