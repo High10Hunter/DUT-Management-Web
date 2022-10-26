@@ -76,9 +76,9 @@ class StudyScheduleController extends Controller
         $currentDate = now()->format('Y-m-d');
 
         $modules = Module::query()
-            ->whereRelation('exam', 'date', '>', $currentDate)
-            ->orWhereDoesntHave('exam')
             ->whereRelation('students', 'student_id', $studentId)
+            ->orWhereDoesntHave('exam')
+            ->whereRelation('exam', 'date', '>', $currentDate)
             ->with(['subject:id,name'])
             ->get();
 
