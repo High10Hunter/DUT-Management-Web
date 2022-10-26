@@ -49,7 +49,7 @@ class ExamController extends Controller
             });
         }
 
-        $data = $query->paginate(10);
+        $data = $query->orderBy('id', 'desc')->paginate(10);
 
         return view("admin.$this->table.index", [
             'data' => $data,
