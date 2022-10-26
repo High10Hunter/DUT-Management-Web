@@ -308,13 +308,25 @@ class Exam extends Model
         $startSlot,
         $proctorId
     ) {
-        foreach ($moduleIds as $moduleId) {
-            $checkExistModule = self::query()
-                ->where('module_id', $moduleId)
-                ->value('id');
+        if (count($moduleIds) > 1) {
+            $subjectIds = Module::query()
+                ->whereIn('id', $moduleIds)
+                ->distinct()
+                ->pluck('subject_id');
 
-            if (isset($checkExistModule)) {
+            //check if modules has same subject 
+            if (count($subjectIds) > 1) {
                 dd("Không tạo được lịch thi");
+            }
+
+            foreach ($moduleIds as $moduleId) {
+                $checkExistModule = self::query()
+                    ->where('module_id', $moduleId)
+                    ->value('id');
+
+                if (isset($checkExistModule)) {
+                    dd("Không tạo được lịch thi");
+                }
             }
         }
 

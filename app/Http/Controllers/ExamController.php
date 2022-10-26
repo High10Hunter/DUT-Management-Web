@@ -29,11 +29,11 @@ class ExamController extends Controller
 
     public function index(Request $request)
     {
-        $currentYear = now()->format('Y');
+        $currentYear = now()->format('Y-m-d');
         $search = $request->get('q');
 
         $query = $this->model
-            ->where('date', '>=', $currentYear . '-01-01')
+            ->where('date', '>=', $currentYear)
             ->with(
                 [
                     'module' => function ($q) {
