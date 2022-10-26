@@ -55,8 +55,10 @@ class StudyScheduleController extends Controller
 
         $modules = Module::query()
             ->whereRelation('students', 'student_id', $studentId)
-            ->orWhereDoesntHave('exam')
-            ->whereRelation('exam', 'date', '>', $currentDate)
+            ->where(function ($q) use ($currentDate) {
+                $q->whereRelation('exam', 'date', '>', $currentDate);
+                $q->orWhereDoesntHave('exam');
+            })
             ->with(['subject:id,name'])
             ->get();
 
@@ -77,8 +79,10 @@ class StudyScheduleController extends Controller
 
         $modules = Module::query()
             ->whereRelation('students', 'student_id', $studentId)
-            ->orWhereDoesntHave('exam')
-            ->whereRelation('exam', 'date', '>', $currentDate)
+            ->where(function ($q) use ($currentDate) {
+                $q->whereRelation('exam', 'date', '>', $currentDate);
+                $q->orWhereDoesntHave('exam');
+            })
             ->with(['subject:id,name'])
             ->get();
 

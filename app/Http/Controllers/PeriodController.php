@@ -33,16 +33,18 @@ class PeriodController extends Controller
         $currentDate = now()->format('Y-m-d');
 
         $modules = Module::query()
-            ->whereRelation('exam', 'date', '>', $currentDate)
-            ->orWhereDoesntHave('exam')
-            ->with(['subject:id,name'])
             ->where(
                 [
                     'lecturer_id' => $lecturerId,
                     'status' => 1,
                 ]
             )
-            // ->whereJsonContains('schedule', json_encode($currentWeekday))
+            ->where(function ($q) use ($currentDate) {
+                $q->whereRelation('exam', 'date', '>', $currentDate);
+                $q->orWhereDoesntHave('exam');
+            })
+            ->with(['subject:id,name'])
+            ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
 
@@ -73,16 +75,18 @@ class PeriodController extends Controller
         $teachedLessons = $this->model->where('module_id', $moduleId)->count();
 
         $modules = Module::query()
-            ->whereRelation('exam', 'date', '>', $currentDate)
-            ->orWhereDoesntHave('exam')
-            ->with(['subject:id,name'])
             ->where(
                 [
                     'lecturer_id' => $lecturerId,
                     'status' => 1,
                 ]
             )
-            // ->whereJsonContains('schedule', json_encode($currentWeekday))
+            ->where(function ($q) use ($currentDate) {
+                $q->whereRelation('exam', 'date', '>', $currentDate);
+                $q->orWhereDoesntHave('exam');
+            })
+            ->with(['subject:id,name'])
+            ->whereJsonContains('schedule', json_encode($currentWeekday))
             ->get();
 
         $period = $this->model
