@@ -184,6 +184,10 @@
                         recreateSelectModules(response.data);
                     },
                     error: function(response) {
+                        $('#create-exam-btn').prop('disabled', false);
+                        $("span[role='btn-status']").remove();
+                        $('#create-exam-btn').html('Tạo lịch thi');
+
                         $.toast({
                             heading: "Không tạo được lịch thi",
                             showHideTransition: 'slide',
