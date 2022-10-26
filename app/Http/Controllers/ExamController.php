@@ -167,6 +167,18 @@ class ExamController extends Controller
         return response()->json($exams);
     }
 
+    public function displayExamsScheduleForStudent()
+    {
+        return view('students.exam-schedule');
+    }
+
+    public function getExamsForStudent()
+    {
+        $studentId = auth()->user()->student->id;
+        $exams = Exam::getExamsForStudent($studentId);
+
+        return response()->json($exams);
+    }
     /**
      * Show the form for editing the specified resource.
      *

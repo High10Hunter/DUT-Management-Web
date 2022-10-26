@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\StudyScheduleController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,4 +15,6 @@ Route::group([
     Route::get('/history', [StudyScheduleController::class, 'history'])->name('history');
     Route::any('/history_attendance/{module?}', [StudyScheduleController::class, 'historyAttendanceOfOneStudent'])
         ->name('history_attendance');
+    Route::get('/exams_schedule', [ExamController::class, 'displayExamsScheduleForStudent'])->name('exams_schedule');
+    Route::get('/get_exams_schedule', [ExamController::class, 'getExamsForStudent'])->name('get_exams_schedule');
 });

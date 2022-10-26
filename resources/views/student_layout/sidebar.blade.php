@@ -18,7 +18,7 @@
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="{{ route('lecturer.exam_proctoring.index') }}" class="side-nav-link">
+                        <a href="{{ route('student.learning_schedule.exams_schedule') }}" class="side-nav-link">
                             <i class="mdi mdi-calendar-check"></i>
                             <span> Xem lịch thi </span>
                         </a>
