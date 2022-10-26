@@ -53,7 +53,7 @@
                                 <tbody>
                                     @foreach ($data as $each)
                                         <tr class="text-center">
-                                            <td>{{ $each->module->name }}</td>
+                                            <td>{{ $each->module->name . ' - ' . $each->module->subject->name }}</td>
                                             <td>{{ $each->exam_date }}</td>
                                             <td>{{ $each->type_name }}</td>
                                             <td>{{ $each->start_slot }}</td>

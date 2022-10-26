@@ -36,7 +36,9 @@ class ExamController extends Controller
             ->where('date', '>=', $currentYear . '-01-01')
             ->with(
                 [
-                    'module:id,name',
+                    'module' => function ($q) {
+                        $q->with('subject:id,name');
+                    },
                     'proctor:id,name',
                 ]
             );
@@ -60,10 +62,9 @@ class ExamController extends Controller
         $modules = Module::query()
             ->whereDoesntHave('exam')
             ->where('status', 1)
-            ->get([
-                'id',
-                'name',
-            ]);
+            ->with('subject:id,name')
+            ->get();
+
         $lecturers = Lecturer::query()->get();
 
         return view("admin.$this->table.schedule-view", [

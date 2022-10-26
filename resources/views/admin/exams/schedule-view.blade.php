@@ -35,7 +35,7 @@
                         <select id="select-modules" name="module_id[]" class="form-control select2" data-toggle="select2" multiple="multiple">
                             @foreach ($modules as $module)
                             <option value="{{ $module->id }}">
-                                {{ $module->name }}
+                                {{ $module->name . ' - ' . $module->subject->name }} 
                             </option> @endforeach
                         </select>
                         Hình thức
