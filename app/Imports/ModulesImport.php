@@ -37,7 +37,7 @@ class ModulesImport implements ToArray, WithHeadingRow
                         'end_slot' =>  $endSlot,
                         'begin_date' =>  $beginDate,
                         'lessons' =>  $lessons,
-                        'status' => 1,
+                        'status' => 0,
                     ]);
                 }
             }
