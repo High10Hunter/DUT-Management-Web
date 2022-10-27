@@ -173,6 +173,10 @@
                         $("#create-exam-modal").modal('hide');
                         //reset modal form
                         $("#new-exam-schedule > select").val(false).trigger('change');
+                        //reset create button
+                        $('#create-exam-btn').prop('disabled', false);
+                        $("span[role='btn-status']").remove();
+                        $('#create-exam-btn').html('Tạo lịch thi');
 
                         $.toast({
                             heading: response.message,
