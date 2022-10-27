@@ -1,10 +1,16 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\StudyScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StudyScheduleController::class, 'index'])->name('index');
+
+Route::get('/change_password', [AuthController::class, 'changePassword'])
+    ->name('change_password');
+Route::post('/change_password', [AuthController::class, 'storeNewPassword'])
+    ->name('store_new_password');
 
 Route::group([
     'prefix' => 'learning_schedule',

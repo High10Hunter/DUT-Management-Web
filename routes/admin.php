@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EAOStaffController;
 use App\Http\Controllers\ExamController;
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('admin.index');
 })->name('index');
+
+Route::get('/change_password', [AuthController::class, 'changePassword'])
+    ->name('change_password');
+Route::post('/change_password', [AuthController::class, 'storeNewPassword'])
+    ->name('store_new_password');
 
 Route::group([
     'prefix' => 'users',

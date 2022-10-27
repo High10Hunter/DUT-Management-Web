@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -46,5 +49,34 @@ class AuthController extends Controller
         $request->session()->invalidate();
 
         return redirect()->route('login');
+    }
+
+    public function changePassword()
+    {
+        return view('auth.change-password');
+    }
+
+    public function storeNewPassword(ChangePasswordRequest $request)
+    {
+        $userId = $request->safe()->user_id;
+        $newPassword = $request->safe()->password;
+        try {
+            User::where('id', $userId)
+                ->update([
+                    'password' => Hash::make($newPassword),
+                ]);
+
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Đổi mật khẩu thành công, vui lòng đăng nhập lại',
+                ]
+            );
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 400);
+        }
     }
 }
