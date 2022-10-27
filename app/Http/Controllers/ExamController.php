@@ -31,6 +31,7 @@ class ExamController extends Controller
     {
         $currentYear = now()->format('Y-m-d');
         $search = $request->get('q');
+        $lecturers = Lecturer::query()->get();
 
         $query = $this->model
             ->where('date', '>=', $currentYear)
@@ -58,10 +59,10 @@ class ExamController extends Controller
 
         $data = manuallyPaginate($exams, 10);
 
-
         return view("admin.$this->table.index", [
             'data' => $data,
             'search' => $search,
+            'lecturers' => $lecturers,
         ]);
     }
 
@@ -189,27 +190,33 @@ class ExamController extends Controller
 
         return response()->json($exams);
     }
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Exam  $exam
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Exam $exam)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateExamRequest  $request
-     * @param  \App\Models\Exam  $exam
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Exam $exam)
+    public function update(Request $request)
     {
-        //
+        try {
+            $examId = $request->input('exam_id');
+            $date = $request->input('edit_date');
+            $type = $request->input('edit_type');
+            $startSlot = $request->input('edit_start_slot');
+            $proctorId = $request->input('edit_proctor_id');
+
+            Exam::where('id', $examId)
+                ->update([
+                    'date' => $date,
+                    'type' => $type,
+                    'start_slot' => $startSlot,
+                    'proctor_id' => $proctorId,
+                ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Cập nhật thành công lịch thi, tải lại trang để thấy sự thay đổi',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 400);
+        }
     }
 
     /**

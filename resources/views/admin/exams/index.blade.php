@@ -49,7 +49,7 @@
                                         <th>Tiết bắt đầu</th>
                                         <th>Giám thị</th>
                                         <th>Danh sách</th>
-                                        {{-- <th>Chỉnh sửa</th> --}}
+                                        <th>Chỉnh sửa</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -72,12 +72,17 @@
                                                         <i class="mdi mdi-format-list-bulleted-triangle"></i>
                                                     </button>
                                                 </td>
-                                                {{-- <td>
-                                                    <button type="button" class="btn btn-info" data-toggle="modal"
-                                                        data-target="#standard-modal">
+                                                <td>
+                                                    <button type="button" class="btn btn-info trigger-modal-btn"
+                                                        data-toggle="modal" data-target="#edit-exam-modal"
+                                                        data-exam-id="{{ $exams[0]->id }}"
+                                                        data-exam-date="{{ $exams[0]->date }}"
+                                                        data-exam-type="{{ $exams[0]->type }}"
+                                                        data-start-slot="{{ $exams[0]->start_slot }}"
+                                                        data-proctor-id="{{ $exams[0]->proctor_id }}">
                                                         <i class="mdi mdi-pencil"></i>
                                                     </button>
-                                                </td> --}}
+                                                </td>
                                             @else
                                                 <td>
                                                     @for ($i = 0; $i < count($exams); $i++)
@@ -109,12 +114,17 @@
                                                         <i class="mdi mdi-format-list-bulleted-triangle"></i>
                                                     </button>
                                                 </td>
-                                                {{-- <td>
-                                                    <button type="button" class="btn btn-info" data-toggle="modal"
-                                                        data-target="#standard-modal">
+                                                <td>
+                                                    <button type="button" class="btn btn-info trigger-modal-btn"
+                                                        data-toggle="modal" data-target="#edit-exam-modal"
+                                                        data-exam-id="{{ $exams[0]->id }}"
+                                                        data-exam-date="{{ $exams[0]->date }}"
+                                                        data-exam-type="{{ $exams[0]->type }}"
+                                                        data-start-slot="{{ $exams[0]->start_slot }}"
+                                                        data-proctor-id="{{ $exams[0]->proctor_id }}">
                                                         <i class="mdi mdi-pencil"></i>
                                                     </button>
-                                                </td> --}}
+                                                </td>
                                             @endif
                                         </tr>
                                     @endforeach
@@ -162,26 +172,54 @@
     </div><!-- /.modal -->
 
 
-    {{-- <!-- Edit exam modal -->
-    <div id="standard-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+    <!-- Edit exam modal -->
+    <div id="edit-exam-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="standard-modalLabel">Modal Heading</h4>
+                    <h4 class="modal-title" id="standard-modalLabel">Chỉnh sửa lịch thi</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <form id="edit-exam-schedule" method="POST">
+                        @csrf
+                        <input type="hidden" name="exam_id">
+                        Ngày thi
+                        <input type="date" name="edit_date" class="form-control">
+                        Hình thức
+                        <select name="edit_type" class="form-control">
+                            <option value="" selected disabled></option>
+                            <option value="0">Lý thuyết</option>
+                            <option value="1">Thực hành</option>
+                        </select>
+                        Tiết bắt đầu
+                        <select name="edit_start_slot" class="form-control">
+                            <option value="" selected disabled></option>
+                            @for ($i = 1; $i <= 9; $i++)
+                                <option value="{{ $i }}">
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                        Giám thị
+                        <select name="edit_proctor_id" class="form-control">
+                            <option value="" selected disabled></option>
+                            @foreach ($lecturers as $lecturer)
+                                <option value="{{ $lecturer->id }}">
+                                    {{ $lecturer->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-dismiss="modal">Đóng</button>
+                            <button type="submit" id="edit-exam-btn" class="btn btn-primary">Thay đổi</button>
+                        </div>
+                    </form>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-     --}}
 @endsection
 @push('js')
     <script>
@@ -256,6 +294,62 @@
 
         $(document).ready(function() {
             getStudents();
+
+            $('.trigger-modal-btn').click(function() {
+                let examId = $(this).data('exam-id');
+                let examDate = $(this).data('exam-date');
+                let examType = $(this).data('exam-type');
+                let startSlot = $(this).data('start-slot');
+                let proctorId = $(this).data('proctor-id');
+
+                $("input[name='exam_id']").val(examId);
+                $("input[name='edit_date']").val(examDate);
+                $("select[name='edit_type']").val(examType);
+                $("select[name='edit_start_slot']").val(startSlot);
+                $("select[name='edit_proctor_id']").val(proctorId);
+            });
+
+            $('#edit-exam-schedule').submit(function(event) {
+                event.preventDefault();
+
+                $('#edit-exam-btn').prop('disabled', true);
+                $('#edit-exam-btn').html("<span role='btn-status'></span>Đang cập nhật");
+                $("span[role='btn-status']").attr("class", "spinner-border spinner-border-sm mr-1");
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('admin.exams.update') }}",
+                    data: $(this).serialize(),
+                    dataType: "json",
+                    success: function(response) {
+                        $('#edit-exam-modal').modal('hide');
+
+                        //reset edit button
+                        $('#edit-exam-btn').prop('disabled', false);
+                        $("span[role='btn-status']").remove();
+                        $('#edit-exam-btn').html('Thay đổi');
+
+                        $.toast({
+                            heading: response.message,
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            stack: false,
+                        });
+                    },
+                    error: function(response) {
+                        $('#edit-exam-btn').prop('disabled', false);
+                        $("span[role='btn-status']").remove();
+                        $('#edit-exam-btn').html('Tạo lịch thi');
+
+                        $.toast({
+                            heading: "Không cập nhật được lịch thi",
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            stack: false,
+                        });
+                    }
+                });
+            });
         });
     </script>
 @endpush
