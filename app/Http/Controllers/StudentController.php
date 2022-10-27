@@ -94,7 +94,7 @@ class StudentController extends Controller
         } else {
             $query = $this->model->clone()
                 ->with(['class:id,name'])
-                ->latest();
+                ->orderBy('id', 'desc');
 
             $classes = _Class::query()
                 ->where('course_id', $selectedCourse)
